@@ -1,0 +1,3 @@
+# Data Mining Lab
+
+This Django-based project is a precursor to the Data Mining Lab Freiberg which will collect data from different research institutes situated in beautiful Freiberg, Saxony to form datasets that will offer new insights into areas of recycling and increased use of secondary raw materials. As such it is a vital step forward in the research of circular economy, cradle-to-cradle design and zero waste.
