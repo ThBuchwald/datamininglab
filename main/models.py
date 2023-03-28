@@ -120,8 +120,8 @@ class Experiment(models.Model):
     date_created = models.DateField(help_text="when was the data created")
     # all experimental data will have to be zipped, so single file
     # will probably have to change to FileField in the future for uploads
-    experiment_file = models.CharField(max_length=255,
-                      verbose_name="experimental data file path",)
+    experiment_file = models.CharField(max_length=255, default="",
+                      verbose_name="experimental data file path")
     date_registered = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
