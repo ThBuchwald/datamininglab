@@ -1,0 +1,16 @@
+{% extends "main/base.html" %} 
+{% load static %} 
+{% load template_extras %} 
+{% block content %}
+
+<div class="main__left"></div>
+
+<div class="main__right">
+  <h1>Create a New User</h1>
+  <form method="POST">
+    {% csrf_token %} {{ form.as_p }}
+    <input type="submit" value="Create" />
+  </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,47 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Mining Lab Freiberg Homepage</title>
+    <link rel="stylesheet" href="{% static "main/css/normalize.css" %}"> <link
+    rel="stylesheet" href="{% static "main/css/styles.css" %}">
+  </head>
+
+  <body>
+    <div id="page-container">
+      <div id="content-wrap">
+        <header>
+          <a href={% url "home" %}>
+            <img class="nav__image" src="{% static "main/images/logo.svg" %}"
+            alt="Logo">
+          </a>
+          <nav>
+            <a href={% url "about" %}><button class="button--nav">About</button> </a>
+            <button class="button--nav">Use</button>
+            <a href="{% url "create" %}"><button class="button--nav">Create</button></a>
+            {% if user.is_authenticated %}
+            <a href={% url "logout" %}><button class="button--nav button--nav--logout">Log Out</button></a>
+            {% else %}
+            <a href={% url "login" %}><button class="button--nav button--nav--login">Log In</button></a>
+            {% endif %}
+          </nav>
+        </header>
+        <main>
+            {% block content %}
+
+            {% endblock %}
+        </main>
+      </div>
+      <footer id="footer">
+        <a class="link--footer" href={% url "home" %}>Home</a>
+        <a class="link--footer" href={% url "contact" %}>Contact</a>
+        <a class="link--footer" href={% url "about" %}>About</a>
+        <a class="link--footer" href={% url "impressum" %}>Impressum</a>
+      </footer>
+    </div>
+  </body>
+</html>
