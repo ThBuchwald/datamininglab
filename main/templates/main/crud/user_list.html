@@ -1,0 +1,52 @@
+{% extends "main/base.html" %} 
+{% load static %} 
+{% load template_extras %} 
+{% load widget_tweaks %} 
+{% block content %}
+
+<div class="main__left">
+
+  <h2 class="h2--home">Users</h2>
+  <a href="{% url "user_list" %}"><button class="button--home">Users List</button></a>
+  <a href="{% url "user_create" %}"><button class="button--home">New User</button></a>
+
+  <h2 class="h2--home">Create Data</h2>
+  <a href="{% url "sample_create" %}"><button class="button--home button--home--secondary">New Sample</button></a>
+  <a href="{% url "experiment_create" %}"><button class="button--home button--home--secondary">New Experiment</button></a>
+
+  {% if request.user|has_group:"AdminGroup" %}
+    <a href="{% url "fundingbody_create" %}"><button class="button--home button--home--secondary">New Funding Body</button></a>
+    <a href="{% url "method_create" %}"><button class="button--home button--home--secondary">New Method</button></a>
+    <a href="{% url "project_create" %}"><button class="button--home button--home--secondary">New Project</button></a>
+    <a href="{% url "staff_create" %}"><button class="button--home button--home--secondary">New Staff Member</button></a>
+    <a href="{% url "user_create" %}"><button class="button--home button--home--secondary">New User</button></a>
+  {% endif %}
+
+</div>
+
+<div class="main__right">
+
+  <h1>Users</h1>
+    
+    <p>
+        Sort by:
+        <a href="?sort_by=username">Name</a> |
+        <a href="?sort_by=username_desc">Name (desc)</a> |
+        <a href="?sort_by=email">Email</a> |
+        <a href="?sort_by=email_desc">Email (desc)</a>
+    </p>
+    <p>
+      Select:
+      <a href="?institute=true">Own Institute</a> |
+      <a href="?institute=false">All Institutes</a>
+    </p>
+    
+    <ul>
+        {% for user in users %}
+        <li><a href="{% url 'user_detail' user.pk %}">{{ user.username }}</a>, {{ user.email }}</li>
+        {% endfor %}
+    </ul>
+  
+</div>
+
+{% endblock %}

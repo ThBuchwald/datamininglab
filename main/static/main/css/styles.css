@@ -160,6 +160,20 @@ button {
   font-weight: 500;
 }
 
+.button--home--secondary {
+  background-color: white;
+  color: var(--main-color);
+  border-style: solid;
+  border-color: var(--main-color);
+  border-width: 2px;
+  font-weight: 500;
+}
+
+.error {
+  color: var(--highlight-color);
+  font-weight: 600;
+}
+
 #flush-left {
   display: flex;
   justify-content: start;
@@ -205,6 +219,44 @@ p {
   font-family: open_sans, Arial, Helvetica, sans-serif;
   font-size: medium;
   color: var(--text-color);
+}
+
+/* ----- */
+/* FORMS */
+/* ----- */
+
+.form-group {
+  display: flex;
+  padding: 0.5rem 0;
+}
+
+.form-group__label {
+  display: inline-block;
+  min-width: 10rem;
+}
+
+.form-group__input {
+  display: inline-block;
+  min-width: 16rem;
+}
+
+.button--form {
+  cursor: pointer;
+  border-radius: 15px;
+  height: 30px;
+  font-size: medium;
+  padding: 5px;
+  margin: 1.5rem 1rem 0 0;
+  min-width: 100px;
+}
+
+.button--form--secondary {
+  background-color: white;
+  color: var(--highlight-color);
+  border-style: solid;
+  border-color: var(--highlight-color);
+  border-width: 2px;
+  font-weight: 700;
 }
 
 /* ---------- */
@@ -316,17 +368,17 @@ p {
 
 @font-face {
   font-family: "montserrat";
-  src: url("fonts/montserrat/montserrat-demibold-webfont.woff2") format("woff2"),
-    url("fonts/montserrat/montserrat-demibold-webfont.woff") format("woff");
+  src: url("fonts/montserrat/montserrat-semibold-webfont.woff2") format("woff2"),
+    url("fonts/montserrat/montserrat-semibold-webfont.woff") format("woff");
   font-weight: bold;
   font-style: normal;
 }
 
 @font-face {
   font-family: "montserrat";
-  src: url("fonts/montserrat/montserrat-demibolditalic-webfont.woff2")
+  src: url("fonts/montserrat/montserrat-semibolditalic-webfont.woff2")
       format("woff2"),
-    url("fonts/montserrat/montserrat-demibolditalic-webfont.woff")
+    url("fonts/montserrat/montserrat-semibolditalic-webfont.woff")
       format("woff");
   font-weight: bold;
   font-style: italic;

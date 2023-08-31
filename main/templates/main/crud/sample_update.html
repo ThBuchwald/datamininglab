@@ -1,0 +1,77 @@
+{% extends "main/base.html" %} 
+{% load static %} 
+{% load template_extras %}
+{% load widget_tweaks %} 
+{% block content %}
+
+<div class="main__left">
+
+  <h2 class="h2--home">Samples</h2>
+  <a href="{% url "sample_list" %}"><button class="button--home">Samples List</button></a>
+  <a href="{% url "sample_create" %}"><button class="button--home">New Sample</button></a>
+
+  <h2 class="h2--home">Create Data</h2>
+  <a href="{% url "sample_create" %}"><button class="button--home button--home--secondary">New Sample</button></a>
+  <a href="{% url "experiment_create" %}"><button class="button--home button--home--secondary">New Experiment</button></a>
+
+  {% if request.user|has_group:"AdminGroup" %}
+    <a href="{% url "fundingbody_create" %}"><button class="button--home button--home--secondary">New Funding Body</button></a>
+    <a href="{% url "method_create" %}"><button class="button--home button--home--secondary">New Method</button></a>
+    <a href="{% url "project_create" %}"><button class="button--home button--home--secondary">New Project</button></a>
+    <a href="{% url "staff_create" %}"><button class="button--home button--home--secondary">New Staff Member</button></a>
+    <a href="{% url "user_create" %}"><button class="button--home button--home--secondary">New User</button></a>
+  {% endif %}
+
+</div>
+
+<div class="main__right">
+
+  <h1>Update Sample</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="{{ form.name.id_for_label }}" class="form-group__label">Sample ID</label>
+      {% render_field form.sample_id class+="form-group__input" %}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.name.id_for_label }}" class="form-group__label">Name</label>
+      {% render_field form.name class+="form-group__input" %}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.name.id_for_label }}" class="form-group__label">Parent Sample ID</label>
+      {% render_field form.parent class+="form-group__input" %}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.name.id_for_label }}" class="form-group__label">Method</label>
+      {% render_field form.method class+="form-group__input" %}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.name.id_for_label }}" class="form-group__label">Date Created</label>
+      {% render_field form.date_created type="date" class+="form-group__input" %}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.name.id_for_label }}" class="form-group__label">Institute</label>
+      {% render_field form.institute class+="form-group__input" %}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.name.id_for_label }}" class="form-group__label">Project</label>
+      {% render_field form.project class+="form-group__input" %}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.name.id_for_label }}" class="form-group__label">Sample Type</label>
+      {% render_field form.sample_type class+="form-group__input" %}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.name.id_for_label }}" class="form-group__label">Sample Info File</label>
+      {% render_field form.sample_info class+="form-group__input" %}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.name.id_for_label }}" class="form-group__label">Supplementary File</label>
+      {% render_field form.supplementary_file class+="form-group__input" %}
+    </div>
+    <button type="submit" class="button--form">Update</button>
+  </form>
+
+</div>
+
+{% endblock %}

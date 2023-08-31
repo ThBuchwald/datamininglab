@@ -1,0 +1,43 @@
+{% extends "main/base.html" %} 
+{% load static %} 
+{% load template_extras %} 
+{% load widget_tweaks %} 
+{% block content %}
+
+<div class="main__left">
+
+  <h2 class="h2--home">Institutes</h2>
+  <a href="{% url "institute_list" %}"><button class="button--home">Projects List</button></a>
+
+  <h2 class="h2--home">Create Data</h2>
+  <a href="{% url "sample_create" %}"><button class="button--home button--home--secondary">New Sample</button></a>
+  <a href="{% url "experiment_create" %}"><button class="button--home button--home--secondary">New Experiment</button></a>
+
+  {% if request.user|has_group:"AdminGroup" %}
+    <a href="{% url "fundingbody_create" %}"><button class="button--home button--home--secondary">New Funding Body</button></a>
+    <a href="{% url "method_create" %}"><button class="button--home button--home--secondary">New Method</button></a>
+    <a href="{% url "project_create" %}"><button class="button--home button--home--secondary">New Project</button></a>
+    <a href="{% url "staff_create" %}"><button class="button--home button--home--secondary">New Staff Member</button></a>
+    <a href="{% url "user_create" %}"><button class="button--home button--home--secondary">New User</button></a>
+  {% endif %}
+
+</div>
+
+
+
+<div class="main__right">
+
+  <h1>{{ institute.name }}</h1>
+  <ul>
+      <li>Affiliation: {{ institute.affiliation }}</li>
+      <li>Street: {{ institute.street }}</li>
+      <li>Post Code: {{ institute.postcode }}</li>
+      <li>City: {{ institute.city }}</li>
+      <li>Telephone: {{ institute.telephone }}</li>
+      <li>Email: {{ institute.email }}</li>      
+      <li>Date Registered: {{ institute.date_registered }}</li>
+  </ul>
+
+</div>
+
+{% endblock %}

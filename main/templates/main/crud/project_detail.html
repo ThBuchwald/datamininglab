@@ -1,0 +1,53 @@
+{% extends "main/base.html" %} 
+{% load static %} 
+{% load template_extras %} 
+{% load widget_tweaks %} 
+{% block content %}
+
+<div class="main__left">
+
+  <h2 class="h2--home">Samples</h2>
+  <a href="{% url "project_list" %}"><button class="button--home">Projects List</button></a>
+  <a href="{% url "project_create" %}"><button class="button--home">New Project</button></a>
+
+  <h2 class="h2--home">Create Data</h2>
+  <a href="{% url "sample_create" %}"><button class="button--home button--home--secondary">New Sample</button></a>
+  <a href="{% url "experiment_create" %}"><button class="button--home button--home--secondary">New Experiment</button></a>
+
+  {% if request.user|has_group:"AdminGroup" %}
+    <a href="{% url "fundingbody_create" %}"><button class="button--home button--home--secondary">New Funding Body</button></a>
+    <a href="{% url "method_create" %}"><button class="button--home button--home--secondary">New Method</button></a>
+    <a href="{% url "project_create" %}"><button class="button--home button--home--secondary">New Project</button></a>
+    <a href="{% url "staff_create" %}"><button class="button--home button--home--secondary">New Staff Member</button></a>
+    <a href="{% url "user_create" %}"><button class="button--home button--home--secondary">New User</button></a>
+  {% endif %}
+
+</div>
+
+
+
+<div class="main__right">
+
+  <h1>{{ project.name }}</h1>
+  <ul>
+      <li>Abbreviation: {{ project.abbreviation }}</li>
+      <li>Funding Number: {{ project.funding_number }}</li>
+      <li>Funding Body: {{ project.funding_body }}</li>
+      <li>Funding Period Starts: {{ project.funding_period_start }}</li>
+      <li>Funding Period Ends: {{ project.funding_period_end }}</li>      
+      <li>File: 
+        {% if project.project_file %}
+        <a href="{{ project.project_file.url }}">Download</a>
+        {% else %}
+        No File
+        {% endif %}
+      </li>
+      <li>Date Registered: {{ project.date_registered }}</li>
+  </ul>
+
+  <a href="{% url 'project_update' project.pk %}"><button class="button--form">Update</button></a>
+  <a href="{% url 'project_delete' project.pk %}"><button class="button--form button--form--secondary">Delete</button></a>
+  
+</div>
+
+{% endblock %}

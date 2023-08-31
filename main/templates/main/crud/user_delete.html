@@ -1,0 +1,63 @@
+{% extends "main/base.html" %} 
+{% load static %} 
+{% load template_extras %} 
+{% load widget_tweaks %} 
+{% block content %}
+
+<div class="main__left">
+
+  <h2 class="h2--home">Users</h2>
+  <a href="{% url "user_list" %}"><button class="button--home">Users List</button></a>
+  <a href="{% url "user_create" %}"><button class="button--home">New User</button></a>
+
+  <h2 class="h2--home">Create Data</h2>
+  <a href="{% url "sample_create" %}"><button class="button--home button--home--secondary">New Sample</button></a>
+  <a href="{% url "experiment_create" %}"><button class="button--home button--home--secondary">New Experiment</button></a>
+
+  {% if request.user|has_group:"AdminGroup" %}
+    <a href="{% url "fundingbody_create" %}"><button class="button--home button--home--secondary">New Funding Body</button></a>
+    <a href="{% url "method_create" %}"><button class="button--home button--home--secondary">New Method</button></a>
+    <a href="{% url "project_create" %}"><button class="button--home button--home--secondary">New Project</button></a>
+    <a href="{% url "staff_create" %}"><button class="button--home button--home--secondary">New Staff Member</button></a>
+    <a href="{% url "user_create" %}"><button class="button--home button--home--secondary">New User</button></a>
+  {% endif %}
+
+</div>
+
+<div class="main__right">
+
+  <h1>Delete {{ user.username }}</h1>
+    
+  <p>Are you sure you want to delete this user?</p>
+  <ul>
+    <li>Name: {{ user.username }}</li>
+    <li>Email: {{ user.email }}</li>
+    <li>Institutes: 
+      {% for institute in institutes %} 
+      {{ institute.name }},
+      {% empty %}
+      No institute!
+      {% endfor %}
+    </li>
+    <li>Permission Groups:
+      {% for group in groups %} 
+      {{ group.name }},
+      {% empty %}
+      No institute!
+      {% endfor %}
+    </li>
+    <li>Last Login: {{ user.last_login }}</li>
+    <li>Date Registered: {{ user.date_joined }}</li>
+</ul>
+
+  <div id="flush-left">
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="button--form button--form--secondary">Delete</button>
+    </form>
+    <a href="{% url 'user_detail' user.pk %}"><button class="button--form">Cancel</button></a>
+  </div>
+  
+</div>
+
+{% endblock %}

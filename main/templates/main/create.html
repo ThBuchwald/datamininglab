@@ -4,10 +4,17 @@
 {% block content %}
 
 <div class="main__left">
-  <h2 class="h2--home">Get and Use Data</h2>
-  <button class="button--home">Database Structure</button>
-  <button class="button--home">API Documentation</button>
-  <button class="button--home">Get Access</button>
+    <h2 class="h2--home">Create Data</h2>
+    <a href="{% url "sample_create" %}"><button class="button--home">New Sample</button></a>
+    <a href="{% url "experiment_create" %}"><button class="button--home">New Experiment</button></a>
+  
+    {% if request.user|has_group:"AdminGroup" %}
+      <a href="{% url "fundingbody_create" %}"><button class="button--home">New Funding Body</button></a>
+      <a href="{% url "method_create" %}"><button class="button--home">New Method</button></a>
+      <a href="{% url "project_create" %}"><button class="button--home">New Project</button></a>
+      <a href="{% url "staff_create" %}"><button class="button--home">New Staff Member</button></a>
+      <a href="{% url "user_create" %}"><button class="button--home">New User</button></a>
+    {% endif %}
 </div>
 
 <div class="main__right">
@@ -26,9 +33,12 @@
 
     <h2 class="h2--home">Create Additional Data</h2>
     
-    <p>Admin users may create new data for all other data tables, except institutes. Please use the contact form if you would like to add a new institute.</p>
+    <p>Admin users may create new data for all other data tables, except institutes and sample types. Please use the contact form if you would like to add a new institute or define a new sample type.</p>
     
     <div id="orient-vertical">
+        <a href="{% url "fundingbody_create" %}"><button class="button--home">New Funding Body</button></a>
+        <a href="{% url "method_create" %}"><button class="button--home">New Method</button></a>
+        <a href="{% url "project_create" %}"><button class="button--home">New Project</button></a>
         <a href="{% url "staff_create" %}"><button class="button--home">New Staff Member</button></a>
         <a href="{% url "user_create" %}"><button class="button--home">New User</button></a>
     </div>

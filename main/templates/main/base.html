@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Data Mining Lab Freiberg Homepage</title>
+    <link rel="shortcut icon" type="image/png" href="{% static 'main/images/favicon.ico' %}"/>
     <link rel="stylesheet" href="{% static "main/css/normalize.css" %}"> <link
     rel="stylesheet" href="{% static "main/css/styles.css" %}">
   </head>
@@ -21,7 +22,7 @@
           </a>
           <nav>
             <a href={% url "about" %}><button class="button--nav">About</button> </a>
-            <button class="button--nav">Use</button>
+            <a href="{% url "use" %}"><button class="button--nav">Use</button></a>
             <a href="{% url "create" %}"><button class="button--nav">Create</button></a>
             {% if user.is_authenticated %}
             <a href={% url "logout" %}><button class="button--nav button--nav--logout">Log Out</button></a>

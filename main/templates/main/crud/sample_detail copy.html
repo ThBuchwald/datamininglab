@@ -1,0 +1,72 @@
+{% extends "main/base.html" %} 
+{% load static %} 
+{% load template_extras %}
+{% load widget_tweaks %} 
+{% block content %}
+
+<div class="main__left">
+
+  <h2 class="h2--home">Samples</h2>
+  <a href="{% url "sample_list" %}"><button class="button--home">Samples List</button></a>
+  <a href="{% url "sample_create" %}"><button class="button--home">New Sample</button></a>
+
+  <h2 class="h2--home">Create Data</h2>
+  <a href="{% url "sample_create" %}"><button class="button--home button--home--secondary">New Sample</button></a>
+  <a href="{% url "experiment_create" %}"><button class="button--home button--home--secondary">New Experiment</button></a>
+
+  {% if request.user|has_group:"AdminGroup" %}
+    <a href="{% url "fundingbody_create" %}"><button class="button--home button--home--secondary">New Funding Body</button></a>
+    <a href="{% url "method_create" %}"><button class="button--home button--home--secondary">New Method</button></a>
+    <a href="{% url "project_create" %}"><button class="button--home button--home--secondary">New Project</button></a>
+    <a href="{% url "staff_create" %}"><button class="button--home button--home--secondary">New Staff Member</button></a>
+    <a href="{% url "user_create" %}"><button class="button--home button--home--secondary">New User</button></a>
+  {% endif %}
+
+</div>
+
+<div class="main__right">
+
+  <h1>Delete {{ sample.sample_id }}</h1>
+    
+  <p>Are you sure you want to delete this sample?</p>
+  <ul>
+      <li>Name: {{ sample.name }}</li>
+      <li>Parent Sample: 
+        {% if sample.parent %}
+          {{ sample.parent }}
+        {% else %}
+          None
+        {% endif %}
+      </li>
+      <li>Method: 
+        {% if sample.method %}
+          {{ sample.method }}
+        {% else %}
+          None
+        {% endif %}
+      </li>
+      <li>Date Created: {{ sample.date_created }}</li>
+      <li>Institute: {{ sample.institute }}</li>
+      <li>Sample Type: {{ sample.sample_type }}</li>
+      <li>Sample Info: <a href="{{ sample.sample_info.url }}">Download</a></li>
+      <li>Supplementary File: 
+        {% if sample.supplementary_file %}
+          <a href="{{ method.method_file.url }}">Download</a>
+        {% else %}
+          None
+        {% endif %}
+      </li>
+      <li>Date Registered: {{ method.date_registered }}</li>
+  </ul>
+
+  <div id="flush-left">
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="button--form button--form--secondary">Delete</button>
+    </form>
+    <a href="{% url 'sample_detail' sample.pk %}"><button class="button--form">Cancel</button></a>
+  </div>
+  
+</div>
+
+{% endblock %}

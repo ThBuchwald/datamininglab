@@ -1,0 +1,41 @@
+{% extends "main/base.html" %} 
+{% load static %} 
+{% load template_extras %} 
+{% block content %}
+
+<div class="main__left">
+  <h2 class="h2--home">View Data</h2>
+  <a href="{% url "sample_list" %}"><button class="button--home">Sample List</button></a>
+  <a href="{% url "experiment_list" %}"><button class="button--home">Experiment List</button></a>
+  <a href="{% url "method_list" %}"><button class="button--home button--home--secondary">Method List</button></a>
+  <a href="{% url "project_list" %}"><button class="button--home button--home--secondary">Project List</button></a>
+  <a href="{% url "institute_list" %}"><button class="button--home button--home--secondary">Institute List</button></a>
+</div>
+
+<div class="main__right">
+    <h1>Use Data</h1>
+    
+    <h2 class="h2--home">View Data</h2>
+    
+    <p>You may view samples, experiments, and some additional data directly from the lists below.</p>
+    
+    <div id="orient-vertical">
+        <a href="{% url "sample_list" %}"><button class="button--home">Sample List</button></a>
+        <a href="{% url "experiment_list" %}"><button class="button--home">Experiment List</button></a>
+        <a href="{% url "method_list" %}"><button class="button--home">Method List</button></a>
+        <a href="{% url "project_list" %}"><button class="button--home">Project List</button></a>
+        <a href="{% url "institute_list" %}"><button class="button--home">Institute List</button></a>
+    </div>
+
+    <h2 class="h2--home">Use Data</h2>
+    
+    <p>More likely you will want to use the API to access the data with a certain logic. Please refer to the documentation.</p>
+    
+    <div id="orient-vertical">
+        <button class="button--home">Database Structure</button>
+        <button class="button--home">API Documentation</button>
+    </div>
+
+</div>
+
+{% endblock %}

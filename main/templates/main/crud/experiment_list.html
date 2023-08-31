@@ -1,0 +1,49 @@
+{% extends "main/base.html" %} 
+{% load static %} 
+{% load template_extras %} 
+{% load widget_tweaks %} 
+{% block content %}
+
+<div class="main__left">
+
+  <h2 class="h2--home">Samples</h2>
+  <a href="{% url "experiment_list" %}"><button class="button--home">Experiment List</button></a>
+  <a href="{% url "experiment_create" %}"><button class="button--home">New Experiment</button></a>
+
+  <h2 class="h2--home">Create Data</h2>
+  <a href="{% url "sample_create" %}"><button class="button--home button--home--secondary">New Sample</button></a>
+  <a href="{% url "experiment_create" %}"><button class="button--home button--home--secondary">New Experiment</button></a>
+
+  {% if request.user|has_group:"AdminGroup" %}
+    <a href="{% url "fundingbody_create" %}"><button class="button--home button--home--secondary">New Funding Body</button></a>
+    <a href="{% url "method_create" %}"><button class="button--home button--home--secondary">New Method</button></a>
+    <a href="{% url "project_create" %}"><button class="button--home button--home--secondary">New Project</button></a>
+    <a href="{% url "staff_create" %}"><button class="button--home button--home--secondary">New Staff Member</button></a>
+    <a href="{% url "user_create" %}"><button class="button--home button--home--secondary">New User</button></a>
+  {% endif %}
+
+</div>
+
+<div class="main__right">
+
+  <h1>Experiments</h1>
+    
+    <p>
+        Sort by:
+        <a href="?sort_by=name">Name</a> |
+        <a href="?sort_by=name_desc">Name (desc)</a> |
+        <a href="?sort_by=sample">Sample</a> |
+        <a href="?sort_by=sample_desc">Sample (desc)</a>
+        <a href="?sort_by=date">Date Registered</a> |
+        <a href="?sort_by=date_desc">Date Registered (desc)</a>
+    </p>
+    
+    <ul>
+        {% for experiment in experiments %}
+        <li><a href="{% url 'eperiment_detail' experiment.pk %}">{{ experiment.name }} &ndash; {{ experiment.sample.sample_id }} &ndash; {{ experiment.date_registered}}</a></li>
+        {% endfor %}
+    </ul>
+
+</div>
+
+{% endblock %}
