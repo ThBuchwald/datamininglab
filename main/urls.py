@@ -1,15 +1,26 @@
 from django.views.generic import TemplateView
 from django.urls import path
-from main.views import (CreateHome, UseHome,
-                        ExperimentCreateView, ExperimentListView, ExperimentDetailView, ExperimentUpdateView, ExperimentDeleteView,
-                        FundingBodyCreateView, FundingBodyListView, FundingBodyDetailView, FundingBodyUpdateView, FundingBodyDeleteView,
-                        InstituteListView, InstituteDetailView,
-                        MethodCreateView, MethodListView, MethodDetailView, MethodUpdateView, MethodDeleteView,
-                        ProjectCreateView, ProjectListView, ProjectDetailView, ProjectUpdateView, ProjectDeleteView,
-                        SampleCreateView, SampleListView, SampleDetailView, SampleUpdateView, SampleDeleteView,
-                        StaffCreateView, StaffListView, StaffDetailView, StaffUpdateView, StaffDeleteView,
-                        UserCreateView, UserListView, UserDetailView, UserUpdateView, UserDeleteView,
-                        say_hello)
+from rest_framework.routers import DefaultRouter
+from .views import (CreateHome, UseHome,
+                    ExperimentCreateView, ExperimentListView, ExperimentDetailView, ExperimentUpdateView, ExperimentDeleteView,
+                    FundingBodyCreateView, FundingBodyListView, FundingBodyDetailView, FundingBodyUpdateView, FundingBodyDeleteView,
+                    InstituteListView, InstituteDetailView,
+                    MethodCreateView, MethodListView, MethodDetailView, MethodUpdateView, MethodDeleteView,
+                    ProjectCreateView, ProjectListView, ProjectDetailView, ProjectUpdateView, ProjectDeleteView,
+                    SampleCreateView, SampleListView, SampleDetailView, SampleUpdateView, SampleDeleteView,
+                    StaffCreateView, StaffListView, StaffDetailView, StaffUpdateView, StaffDeleteView,
+                    UserCreateView, UserListView, UserDetailView, UserUpdateView, UserDeleteView,
+                    SampleViewSet, ExperimentViewSet, FundingBodyViewSet, InstituteViewSet, MethodViewSet, ProjectViewSet, StaffViewSet,
+                    say_hello)
+
+router = DefaultRouter()
+router.register(r'samples', SampleViewSet)
+router.register(r'experiments', ExperimentViewSet)
+router.register(r'fundingbodies', FundingBodyViewSet)
+router.register(r'institutes', InstituteViewSet)
+router.register(r'methods', MethodViewSet)
+router.register(r'projects', ProjectViewSet)
+router.register(r'staffs', StaffViewSet)
 
 urlpatterns = [
     path("hello/", say_hello),
@@ -83,3 +94,5 @@ urlpatterns = [
     path('user/<int:pk>/update/', UserUpdateView.as_view(), name='user_update'),
     path('user/<int:pk>/delete/', UserDeleteView.as_view(), name='user_delete'),
 ]
+
+urlpatterns += router.urls

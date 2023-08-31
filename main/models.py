@@ -7,8 +7,6 @@ from django.db.models.signals import post_delete
 from django.dispatch import receiver
 import os
 
-# Create your models here.
-
 
 class Institute(models.Model):
     name = models.CharField(max_length=255)

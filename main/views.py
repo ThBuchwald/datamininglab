@@ -4,8 +4,10 @@ from django.urls import reverse, reverse_lazy
 from django.contrib.auth import get_user_model
 from django.views.generic import TemplateView, CreateView, ListView, DetailView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from main.models import Experiment, FundingBody, Institute, Method, Project, Staff, Sample
-from main.forms import ExperimentForm, FundingBodyForm, MethodForm, ProjectForm, SampleForm, StaffForm, UserForm, UserUpdateForm
+from rest_framework import viewsets, mixins
+from .models import Experiment, FundingBody, Institute, Method, Project, Staff, Sample
+from .forms import ExperimentForm, FundingBodyForm, MethodForm, ProjectForm, SampleForm, StaffForm, UserForm, UserUpdateForm
+from .serializers import SampleSerializer, ExperimentSerializer, FundingBodySerializer, InstituteSerializer, MethodSerializer, ProjectSerializer, StaffSerializer
 
 ''' ----------
     home views
@@ -24,9 +26,9 @@ class UseHome(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
     permission_required = "main.view_sample"
 
 
-''' -------------
-    CRUD - create
-    ------------- '''
+''' -----------------
+    CRUD - Experiment
+    ----------------- '''
 
 
 class ExperimentCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -113,6 +115,11 @@ class ExperimentDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteVi
         return Experiment.objects.filter(institute__in=self.request.user.institute.all())
 
 
+''' ------------------
+    CRUD - FundingBody
+    ------------------ '''
+
+
 class FundingBodyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = FundingBody
     form_class = FundingBodyForm
@@ -166,6 +173,11 @@ class FundingBodyDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteV
     success_url = reverse_lazy("fundingbody_list")
 
 
+''' ----------------
+    CRUD - Institute
+    ---------------- '''
+
+
 class InstituteListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Institute
     template_name = 'main/crud/institute_list.html'
@@ -189,6 +201,11 @@ class InstituteDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVie
     template_name = 'main/crud/institute_detail.html'
     permission_required = "main.view_institute"
     context_object_name = 'institute'
+
+
+''' -------------
+    CRUD - Method
+    ------------- '''
 
 
 class MethodCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -268,6 +285,11 @@ class MethodDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
         return Method.objects.filter(institute__in=self.request.user.institute.all())
 
 
+''' --------------
+    CRUD - Project
+    -------------- '''
+
+
 class ProjectCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Project
     form_class = ProjectForm
@@ -323,6 +345,11 @@ class ProjectDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView)
     template_name = 'main/crud/project_delete.html'
     success_url = reverse_lazy("project_list")
     permission_required = "main.delete_project"
+
+
+''' -------------
+    CRUD - Sample
+    ------------- '''
 
 
 class SampleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -410,6 +437,11 @@ class SampleDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     permission_required = "main.delete_sample"
 
 
+''' ------------
+    CRUD - Staff
+    ------------ '''
+
+
 class StaffCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Staff
     form_class = StaffForm
@@ -482,6 +514,10 @@ class StaffDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     success_url = reverse_lazy("staff_list")
     permission_required = "main.delete_staff"
 
+
+''' -----------
+    CRUD - User
+    ----------- '''
 
 User = get_user_model()
 
@@ -579,6 +615,55 @@ class UserDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
         context['groups'] = self.object.groups.all()
         context['institutes'] = self.object.institute.all()
         return context
+
+
+''' ----------
+    CRUD - API
+    ---------- '''
+
+
+class ReadWriteViewSet(viewsets.ModelViewSet):  # CRUD endpoints
+    pass
+
+
+class ReadOnlyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
+                      mixins.ListModelMixin):  # Read-only endpoints
+    pass
+
+
+class ExperimentViewSet(ReadWriteViewSet):
+    queryset = Experiment.objects.all()
+    serializer_class = ExperimentSerializer
+
+
+class FundingBodyViewSet(ReadOnlyViewSet):
+    queryset = FundingBody.objects.all()
+    serializer_class = FundingBodySerializer
+
+
+class InstituteViewSet(ReadOnlyViewSet):
+    queryset = Institute.objects.all()
+    serializer_class = InstituteSerializer
+
+
+class MethodViewSet(ReadOnlyViewSet):
+    queryset = Method.objects.all()
+    serializer_class = MethodSerializer
+
+
+class ProjectViewSet(ReadOnlyViewSet):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+
+
+class SampleViewSet(ReadWriteViewSet):
+    queryset = Sample.objects.all()
+    serializer_class = SampleSerializer
+
+
+class StaffViewSet(ReadOnlyViewSet):
+    queryset = Staff.objects.all()
+    serializer_class = StaffSerializer
 
 
 ''' ----------------

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+from .models import Sample, Experiment, FundingBody, Institute, Method, Project, Staff
 
 ''' ------------
     sample types
@@ -67,3 +67,45 @@ class SampleTypeSuspensionSerializer(serializers.Serializer):
 ''' ------------
     API-specific
     ------------ '''
+
+
+class SampleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sample
+        fields = '__all__'
+
+
+class ExperimentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Experiment
+        fields = '__all__'
+
+
+class FundingBodySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FundingBody
+        fields = '__all__'
+
+
+class InstituteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Institute
+        fields = '__all__'
+
+
+class MethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Method
+        fields = '__all__'
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = '__all__'
+
+
+class StaffSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Staff
+        fields = '__all__'
