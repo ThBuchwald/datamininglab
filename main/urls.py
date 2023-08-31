@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView
-from django.urls import path
+from django.urls import path, include
+from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.routers import DefaultRouter
 from .views import (CreateHome, UseHome,
                     ExperimentCreateView, ExperimentListView, ExperimentDetailView, ExperimentUpdateView, ExperimentDeleteView,
@@ -94,5 +95,10 @@ urlpatterns = [
     path('user/<int:pk>/update/', UserUpdateView.as_view(), name='user_update'),
     path('user/<int:pk>/delete/', UserDeleteView.as_view(), name='user_delete'),
 ]
+
+# API-related
+
+urlpatterns += [path('api-token-auth/', obtain_auth_token,
+                     name='api-token-auth'),]
 
 urlpatterns += router.urls
