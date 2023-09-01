@@ -188,8 +188,11 @@ class Sample(models.Model):
         return os.path.join('sample_info', new_filename)
 
     def get_supplementary_file_upload_path(self, filename):
-        new_filename = f"{self.sample_id}.{filename.split('.')[-1]}"
-        return os.path.join('sample_info', new_filename)
+        if filename:
+            ext = filename.split(".")[-1]
+            new_filename = f"{self.sample_id}.{ext}"
+            return os.path.join('supplementary_files', new_filename)
+        return None
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -205,8 +208,10 @@ class Sample(models.Model):
 
         # Rename and save the supplementary_file if the file name has changed
         new_supplementary_file_name = self.get_supplementary_file_upload_path(
-            self.supplementary_file.name)
-        if self.supplementary_file and self.supplementary_file.name != new_supplementary_file_name:
+            self.supplementary_file.name if self.supplementary_file else None)
+        if (self.supplementary_file and new_supplementary_file_name and
+                self.supplementary_file.name != new_supplementary_file_name):
+
             old_supplementary_file_path = self.supplementary_file.path
             new_supplementary_file_path = default_storage.path(
                 new_supplementary_file_name)

@@ -371,9 +371,21 @@ class SampleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         return form
 
     def form_valid(self, form):
-        # Set the 'user' field to the current user before saving the form
-        form.instance.user = self.request.user
-        return super(ExperimentCreateView, self).form_valid(form)
+        # Check if form inputs are valid
+        if form.is_valid():
+            # Set the 'user' field to the current user before saving the form
+            form.instance.user = self.request.user
+            # Here, we print the user to the console
+            print("User: ", self.request.user)
+            # Call the parent form_valid method which also saves the form
+            return super(SampleCreateView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        # Log form errors to console
+        print("Form is not valid :(")
+        print(form.errors)
+        # Call parent function
+        return super().form_invalid(form)
 
     def get_success_url(self):
         return reverse_lazy('sample_detail', kwargs={'pk': self.object.pk})

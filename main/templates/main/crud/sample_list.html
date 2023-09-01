@@ -45,7 +45,7 @@
     
     <ul>
         {% for sample in samples %}
-        <li><a href="{% url 'sample_detail' sample.pk %}">{{ sample.sample_id }} &endash; {{ sample.name }}</a></li>
+        <li><a href="{% url 'sample_detail' sample.pk %}">{{ sample.sample_id }} : {{ sample.name }}</a></li>
         {% endfor %}
     </ul>
 

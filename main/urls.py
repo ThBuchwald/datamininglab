@@ -77,10 +77,10 @@ urlpatterns = [
 
     path("sample/create", SampleCreateView.as_view(), name="sample_create"),
     path('sample/', SampleListView.as_view(), name='sample_list'),
-    path('sample/<int:pk>/', SampleDetailView.as_view(), name='sample_detail'),
-    path('sample/<int:pk>/update/',
+    path('sample/<pk>/', SampleDetailView.as_view(), name='sample_detail'),
+    path('sample/<pk>/update/',
          SampleUpdateView.as_view(), name='sample_update'),
-    path('sample/<int:pk>/delete/',
+    path('sample/<pk>/delete/',
          SampleDeleteView.as_view(), name='sample_delete'),
 
     path("staff/create", StaffCreateView.as_view(), name="staff_create"),

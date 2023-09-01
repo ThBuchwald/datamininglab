@@ -15,7 +15,7 @@ class SampleTypeBatterySerializer(serializers.Serializer):
 
     # allowing all empty values to be accepted as null
     def to_internal_value(self, data):
-        for field in data:
+        for field in data.keys():
             if field == '':
                 field = None
         return super(SampleTypeBatterySerializer, self).to_internal_value(data)
@@ -29,7 +29,7 @@ class SampleTypeSolidsSerializer(serializers.Serializer):
     comment = serializers.CharField(max_length=255, allow_null=True)
 
     def to_internal_value(self, data):
-        for field in data:
+        for field in data.keys():
             if field == '':
                 field = None
         return super(SampleTypeBatterySerializer, self).to_internal_value(data)
@@ -43,7 +43,7 @@ class SampleTypeLiquidSerializer(serializers.Serializer):
     comment = serializers.CharField(max_length=255, allow_null=True)
 
     def to_internal_value(self, data):
-        for field in data:
+        for field in data.keys():
             if field == '':
                 field = None
         return super(SampleTypeBatterySerializer, self).to_internal_value(data)
@@ -58,7 +58,7 @@ class SampleTypeSuspensionSerializer(serializers.Serializer):
     density_in_gccm = serializers.FloatField(min_value=0.0, allow_null=True)
 
     def to_internal_value(self, data):
-        for field in data:
+        for field in data.keys():
             if field == '':
                 field = None
         return super(SampleTypeBatterySerializer, self).to_internal_value(data)

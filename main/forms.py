@@ -1,3 +1,4 @@
+import json
 import os
 import zipfile
 from django import forms
@@ -17,13 +18,14 @@ class ExperimentForm(forms.ModelForm):
         fields = ["name", "method", "date_created", "sample",
                   "staff", "project", "experiment_file"]
 
-    def clean_experiment_file(self):
-        file = self.cleaned_data.get('experiment_file')
-        if file:
-            file_extension = os.path.splitext(file.name)[1].lower()
-            if file_extension != '.zip' or not zipfile.is_zipfile(file):
-                raise ValidationError("Only zip files are allowed.")
-        return file
+    # def clean_experiment_file(self):
+    #    file = self.cleaned_data.get('experiment_file')
+    #    print(file)
+    #    if file:
+    #        file_extension = os.path.splitext(file.name)[1].lower()
+    #        if file_extension != '.zip' or not zipfile.is_zipfile(file):
+    #            raise ValidationError("Only zip files are allowed.")
+    #    return file
 
 
 class FundingBodyForm(forms.ModelForm):
@@ -79,9 +81,18 @@ class SampleForm(forms.ModelForm):
         sample_info = self.cleaned_data.get('sample_info')
         sample_type = self.cleaned_data.get('sample_type')
 
+        # Print debug information on sample_info and sample_type
+        # print("Sample info: ", sample_info)
+        # print("Sample type: ", sample_type)
+
         # Validate the JSON file based on the chosen sample type
         try:
             sample_info_json = json.load(sample_info)
+
+            # Print debug information
+            # print("Sample Info JSON: ", sample_info_json)
+            # print("Sample Type: ", sample_type)
+
             if not self.validate_json_structure(sample_info_json, sample_type):
                 raise forms.ValidationError(
                     "Invalid JSON structure for the selected sample type.")
@@ -93,14 +104,14 @@ class SampleForm(forms.ModelForm):
     def validate_json_structure(self, json_data, sample_type):
         # Map sample types to their serializers
         sample_type_serializers = {
-            'battery': SampleTypeBatterySerializer,
-            'solids': SampleTypeSolidsSerializer,
-            'liquid': SampleTypeLiquidSerializer,
-            'suspension': SampleTypeSuspensionSerializer,
+            'Battery': SampleTypeBatterySerializer,
+            'Solids': SampleTypeSolidsSerializer,
+            'Liquid': SampleTypeLiquidSerializer,
+            'Suspension': SampleTypeSuspensionSerializer,
         }
 
         # Get the serializer for the chosen sample type
-        serializer_class = sample_type_serializers.get(sample_type.identifier)
+        serializer_class = sample_type_serializers.get(sample_type.name)
 
         if not serializer_class:
             return False
@@ -108,7 +119,11 @@ class SampleForm(forms.ModelForm):
         # Validate the JSON data using the serializer
         serializer = serializer_class(data=json_data)
 
-        return serializer.is_valid()
+        if not serializer.is_valid():
+            print(serializer.errors)  # Log serializer errors to console
+            return False
+
+        return True
 
 
 class StaffForm(forms.ModelForm):
