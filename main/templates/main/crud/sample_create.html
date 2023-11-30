@@ -71,7 +71,11 @@
     </div>
     <button type="submit" class="button--form">Submit</button>
   </form>
-
+  {% if form.errors %}
+    <div class="alert">
+        {{ form.errors }}
+    </div>
+  {% endif %}
 </div>
 
 {% endblock %}

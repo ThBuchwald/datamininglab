@@ -1,2 +1,10 @@
 **/__pycache__
 /mock_data
+/.venv
+/.vscode
+*.env*
+/media/experiment_files/*
+/media/method_files/*
+/media/sample_info/*
+/media/supplementary_files/*
+poetry.lock

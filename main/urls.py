@@ -11,7 +11,7 @@ from .views import (CreateHome, UseHome,
                     SampleCreateView, SampleListView, SampleDetailView, SampleUpdateView, SampleDeleteView,
                     StaffCreateView, StaffListView, StaffDetailView, StaffUpdateView, StaffDeleteView,
                     UserCreateView, UserListView, UserDetailView, UserUpdateView, UserDeleteView,
-                    SampleViewSet, ExperimentViewSet, FundingBodyViewSet, InstituteViewSet, MethodViewSet, ProjectViewSet, StaffViewSet,
+                    SampleViewSet, ExperimentViewSet, FundingBodyViewSet, InstituteViewSet, MethodViewSet, ProjectViewSet, SampleTypeViewSet, StaffViewSet,
                     say_hello)
 
 router = DefaultRouter()
@@ -21,6 +21,7 @@ router.register(r'fundingbodies', FundingBodyViewSet)
 router.register(r'institutes', InstituteViewSet)
 router.register(r'methods', MethodViewSet)
 router.register(r'projects', ProjectViewSet)
+router.register(r'sampletypes', SampleTypeViewSet)
 router.register(r'staffs', StaffViewSet)
 
 urlpatterns = [
@@ -77,6 +78,8 @@ urlpatterns = [
 
     path("sample/create", SampleCreateView.as_view(), name="sample_create"),
     path('sample/', SampleListView.as_view(), name='sample_list'),
+    # the sample URLs all contain underscores because of their special pk
+    # therefore "int:" needed to be removed to properly display entries
     path('sample/<pk>/', SampleDetailView.as_view(), name='sample_detail'),
     path('sample/<pk>/update/',
          SampleUpdateView.as_view(), name='sample_update'),

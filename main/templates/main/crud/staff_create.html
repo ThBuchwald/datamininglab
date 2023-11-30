@@ -54,6 +54,12 @@
       {% render_field form.active class+="form-group__input" %}
     </div>
     <button type="submit" class="button--form">Submit</button>
+    {% if form.errors %}
+      <div class="alert">
+          {{ form.errors }}
+      </div>
+    {% endif %}
+
   </form>
 
 </div>

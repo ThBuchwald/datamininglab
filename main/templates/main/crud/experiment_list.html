@@ -40,7 +40,7 @@
     
     <ul>
         {% for experiment in experiments %}
-        <li><a href="{% url 'eperiment_detail' experiment.pk %}">{{ experiment.name }} &ndash; {{ experiment.sample.sample_id }} &ndash; {{ experiment.date_registered}}</a></li>
+        <li><a href="{% url 'experiment_detail' experiment.pk %}">{{ experiment.name }} - {{ experiment.sample.sample_id }} - {{ experiment.date_registered}}</a></li>
         {% endfor %}
     </ul>
 

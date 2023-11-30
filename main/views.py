@@ -4,10 +4,18 @@ from django.urls import reverse, reverse_lazy
 from django.contrib.auth import get_user_model
 from django.views.generic import TemplateView, CreateView, ListView, DetailView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from rest_framework import viewsets, mixins
-from .models import Experiment, FundingBody, Institute, Method, Project, Staff, Sample
+import logging
+from rest_framework import viewsets, mixins, status
+from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.response import Response
+from .models import Experiment, FundingBody, Institute, Method, Project, Staff, Sample, SampleType
 from .forms import ExperimentForm, FundingBodyForm, MethodForm, ProjectForm, SampleForm, StaffForm, UserForm, UserUpdateForm
-from .serializers import SampleSerializer, ExperimentSerializer, FundingBodySerializer, InstituteSerializer, MethodSerializer, ProjectSerializer, StaffSerializer
+from .serializers import SampleSerializer, ExperimentSerializer, FundingBodySerializer, InstituteSerializer, MethodSerializer, ProjectSerializer, SampleTypeSerializer, StaffSerializer
+
+
+logger = logging.getLogger(__name__)
+
 
 ''' ----------
     home views
@@ -50,6 +58,7 @@ class ExperimentCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
 
     def form_valid(self, form):
         # Set the 'user' field to the current user before saving the form
+        print(form.errors)
         form.instance.user = self.request.user
         return super(ExperimentCreateView, self).form_valid(form)
 
@@ -643,9 +652,24 @@ class ReadOnlyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
     pass
 
 
+class SampleViewSet(ReadWriteViewSet):
+    queryset = Sample.objects.select_related('user').all()
+    serializer_class = SampleSerializer
+    parser_classes = (MultiPartParser, FormParser)
+
+    def perform_create(self, serializer):
+        # Assign the authenticated user (the owner of the token) to the 'user' field of the sample
+        serializer.save(user=self.request.user)
+
+
 class ExperimentViewSet(ReadWriteViewSet):
-    queryset = Experiment.objects.all()
+    queryset = Experiment.objects.select_related('user').all()
     serializer_class = ExperimentSerializer
+    parser_classes = (MultiPartParser, FormParser)
+
+    def perform_create(self, serializer):
+        # Assign the authenticated user (the owner of the token) to the 'user' field of the sample
+        serializer.save(user=self.request.user)
 
 
 class FundingBodyViewSet(ReadOnlyViewSet):
@@ -668,9 +692,9 @@ class ProjectViewSet(ReadOnlyViewSet):
     serializer_class = ProjectSerializer
 
 
-class SampleViewSet(ReadWriteViewSet):
-    queryset = Sample.objects.all()
-    serializer_class = SampleSerializer
+class SampleTypeViewSet(ReadOnlyViewSet):
+    queryset = SampleType.objects.all()
+    serializer_class = SampleTypeSerializer
 
 
 class StaffViewSet(ReadOnlyViewSet):

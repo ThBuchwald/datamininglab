@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Sample, Experiment, FundingBody, Institute, Method, Project, Staff
+from .models import Sample, Experiment, FundingBody, Institute, Method, Project, SampleType, Staff
 
 ''' ------------
     sample types
@@ -73,6 +73,7 @@ class SampleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sample
         fields = '__all__'
+        read_only_fields = ('user',)
 
 
 class ExperimentSerializer(serializers.ModelSerializer):
@@ -102,6 +103,12 @@ class MethodSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
+        fields = '__all__'
+
+
+class SampleTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SampleType
         fields = '__all__'
 
 

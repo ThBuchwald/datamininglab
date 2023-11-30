@@ -259,7 +259,9 @@ class Experiment(models.Model):
 
     def get_experiment_file_upload_path(self, filename):
         # Use the instance's primary key as the new file name
-        new_filename = f"{self.pk}.zip"
+        file_extension = os.path.splitext(filename)[1]
+        new_filename = f"{self.pk}{file_extension}"
+        print(new_filename)
         return os.path.join('experiment_files', new_filename)
 
     def save(self, *args, **kwargs):

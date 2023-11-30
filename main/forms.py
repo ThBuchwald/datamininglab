@@ -1,6 +1,5 @@
 import json
 import os
-import zipfile
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
@@ -18,14 +17,15 @@ class ExperimentForm(forms.ModelForm):
         fields = ["name", "method", "date_created", "sample",
                   "staff", "project", "experiment_file"]
 
-    # def clean_experiment_file(self):
-    #    file = self.cleaned_data.get('experiment_file')
-    #    print(file)
-    #    if file:
-    #        file_extension = os.path.splitext(file.name)[1].lower()
-    #        if file_extension != '.zip' or not zipfile.is_zipfile(file):
-    #            raise ValidationError("Only zip files are allowed.")
-    #    return file
+    def clean_experiment_file(self):
+        file = self.cleaned_data.get('experiment_file')
+        # Debug information
+        # print(file)
+        if file:
+            file_extension = os.path.splitext(file.name)[1].lower()
+            if file_extension != '.zip':
+                raise ValidationError("Only zip files are allowed.")
+        return file
 
 
 class FundingBodyForm(forms.ModelForm):
