@@ -377,6 +377,7 @@ class SampleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
             institute__in=user_institutes)
         form.fields['parent'].queryset = Sample.objects.filter(
             institute__in=user_institutes)
+        #form.fields['sample_type'].queryset = SampleType.objects.all()
         return form
 
     def form_valid(self, form):
@@ -708,6 +709,5 @@ class StaffViewSet(ReadOnlyViewSet):
 
 
 def say_hello(request):
-    # result = os.path.abspath(__file__)
     result = request.user.groups.all()[1:]
     return HttpResponse(result)

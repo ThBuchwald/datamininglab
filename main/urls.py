@@ -22,7 +22,7 @@ router.register(r'institutes', InstituteViewSet)
 router.register(r'methods', MethodViewSet)
 router.register(r'projects', ProjectViewSet)
 router.register(r'sampletypes', SampleTypeViewSet)
-router.register(r'staffs', StaffViewSet)
+router.register(r'staff', StaffViewSet)
 
 urlpatterns = [
     path("hello/", say_hello),

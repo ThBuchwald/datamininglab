@@ -1,0 +1,64 @@
+[
+{
+  "model": "auth.group",
+  "pk": 1,
+  "fields": {
+    "name": "AdminGroup",
+    "permissions": [
+      33,
+      34,
+      35,
+      36,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      53,
+      54,
+      55,
+      56,
+      29,
+      30,
+      31,
+      32
+    ]
+  }
+},
+{
+  "model": "auth.group",
+  "pk": 2,
+  "fields": {
+    "name": "CreateGroup",
+    "permissions": [
+      61,
+      62,
+      63,
+      64,
+      57,
+      58,
+      59,
+      60
+    ]
+  }
+},
+{
+  "model": "auth.group",
+  "pk": 3,
+  "fields": {
+    "name": "UseGroup",
+    "permissions": [
+      64,
+      36,
+      40,
+      44,
+      48,
+      60,
+      52
+    ]
+  }
+}
+]
