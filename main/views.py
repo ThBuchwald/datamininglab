@@ -1,18 +1,22 @@
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth import get_user_model
-from django.views.generic import TemplateView, CreateView, ListView, DetailView, UpdateView, DeleteView
+from django.views.generic import TemplateView, CreateView, ListView, DetailView, UpdateView, DeleteView, FormView, View
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 import logging
 from rest_framework import viewsets, mixins, status
+from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from .models import Experiment, FundingBody, Institute, Method, Project, Staff, Sample, SampleType
-from .forms import ExperimentForm, FundingBodyForm, MethodForm, ProjectForm, SampleForm, StaffForm, UserForm, UserUpdateForm
-from .serializers import SampleSerializer, ExperimentSerializer, FundingBodySerializer, InstituteSerializer, MethodSerializer, ProjectSerializer, SampleTypeSerializer, StaffSerializer
-
+from .forms import ExperimentForm, FundingBodyForm, MethodForm, ProjectForm, SampleForm, SampleInfoForm, StaffForm, UserForm, UserUpdateForm
+from .serializers import SampleSerializer, ExperimentSerializer, FundingBodySerializer, InstituteSerializer, \
+                         MethodSerializer, ProjectSerializer, SampleTypeSerializer, StaffSerializer, \
+                         SampleTypeBatterySerializer, SampleTypeSolidsSerializer, SampleTypeLiquidSerializer, SampleTypeSuspensionSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +36,48 @@ class UseHome(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
     login_url = reverse_lazy("login")
     template_name = "main/use.html"
     permission_required = "main.view_sample"
+
+
+class ChooseSampleInfoView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = "main.add_sample"
+    
+    def get(self, request):
+        # Retrieve all SampleType objects from the database
+        sample_types = SampleType.objects.all()
+        # Render the template with the list of sample types
+        return render(request, 'main/crud/sample_info_choose.html', {'sample_types': sample_types})
+
+
+class CreateSampleInfoView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    permission_required = "main.add_sample"
+    template_name = 'main/crud/sample_info_create.html'
+    form_class = SampleInfoForm
+
+    def get_form_kwargs(self):
+        kwargs = super(CreateSampleInfoView, self).get_form_kwargs()
+        sample_type_id = self.request.GET.get('sample_type')
+        sample_type_name = SampleType.objects.get(pk=sample_type_id).name
+        
+        # Map sample type names to serializer classes as before
+        sample_type_serializers = {
+            'Battery': SampleTypeBatterySerializer,
+            'Solids': SampleTypeSolidsSerializer,
+            'Liquid': SampleTypeLiquidSerializer,
+            'Suspension': SampleTypeSuspensionSerializer,
+        }
+        
+        # Pass the serializer class for the chosen sample type to the form
+        kwargs['serializer_class'] = sample_type_serializers.get(sample_type_name.capitalize())
+        return kwargs
+
+    def form_valid(self, form):
+        # Convert the cleaned data dict to JSON using Django's encoder
+        sample_info_json = json.dumps(form.cleaned_data, cls=DjangoJSONEncoder)
+        
+        # Construct the HTTP response
+        response = HttpResponse(sample_info_json, content_type='application/json')
+        response['Content-Disposition'] = 'attachment; filename="sample_info.json"'
+        return response
 
 
 ''' -----------------
@@ -701,6 +747,34 @@ class SampleTypeViewSet(ReadOnlyViewSet):
 class StaffViewSet(ReadOnlyViewSet):
     queryset = Staff.objects.all()
     serializer_class = StaffSerializer
+
+
+@api_view(['GET'])
+def sample_type_info(request, sample_type_name):
+    serializer_classes = {
+        'Battery': SampleTypeBatterySerializer,
+        'Liquid': SampleTypeLiquidSerializer,
+        'Solids': SampleTypeSolidsSerializer,
+        'Suspension': SampleTypeSuspensionSerializer,
+    }
+    # Get the serializer for the requested sample type
+    serializer_class = serializer_classes.get(sample_type_name.capitalize())
+    if serializer_class:
+        # Create a serializer instance
+        serializer = serializer_class()
+        # Return the fields of the serializer as the expected schema
+        fields_info = {
+            field_name: {
+                'type': str(field.__class__.__name__),
+                'help_text': str(field.help_text) if field.help_text else '',
+                'required': field.required,
+                'allow_null': field.allow_null,
+            }
+            for field_name, field in serializer.get_fields().items()
+        }
+        return Response(fields_info)
+
+    return Response({'error': 'Sample type not found'}, status=404)
 
 
 ''' ----------------
