@@ -6,7 +6,9 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
-from main.models import Experiment, FundingBody, Method, Project, Sample, Staff
+from django.forms.widgets import TextInput, NumberInput, DateInput
+from rest_framework import serializers
+from main.models import Experiment, FundingBody, Method, Institute, Project, Sample, Staff
 from main.serializers import (SampleTypeBatterySerializer, SampleTypeLiquidSerializer,
                               SampleTypeSolidsSerializer, SampleTypeSuspensionSerializer,
                               )
@@ -125,6 +127,46 @@ class SampleForm(forms.ModelForm):
             return False
 
         return True
+
+
+def serializer_field_to_form_field(serializer_field):
+    """
+    Return the Django form field that corresponds to the provided serializer field.
+    """
+    if isinstance(serializer_field, serializers.CharField):
+        return forms.CharField(max_length=serializer_field.max_length,
+                               required=serializer_field.required)
+    elif isinstance(serializer_field, serializers.FloatField):
+        return forms.FloatField(min_value=serializer_field.min_value,
+                                  max_value=serializer_field.max_value,
+                                  required=serializer_field.required)
+    elif isinstance(serializer_field, serializers.DateField):
+        return forms.DateField(required=serializer_field.required)
+    else: # fall back to CharField
+        return forms.CharField(required=serializer_field.required)
+    
+
+# this class is dynamically changing depending on the chosen sample type
+class SampleInfoForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        # Retrieve the serializer class passed to the form
+        serializer_class = kwargs.pop('serializer_class', None)
+        super(SampleInfoForm, self).__init__(*args, **kwargs)
+
+        # If a serializer class was provided, create form fields based on the serializer fields
+        if serializer_class:
+            serializer = serializer_class()
+            for field_name, serializer_field in serializer.get_fields().items():
+                form_field = serializer_field_to_form_field(serializer_field)
+                # Let's specify the widget directly in the form field definition
+                if isinstance(serializer_field, serializers.CharField):
+                    form_field.widget = TextInput(attrs={'class': 'form-group__input'})
+                elif isinstance(serializer_field, serializers.IntegerField):
+                    form_field.widget = NumberInput(attrs={'class': 'form-group__input'})
+                elif isinstance(serializer_field, serializers.DateField):
+                    form_field.widget = DateInput(attrs={'class': 'form-group__input', 'type': 'date'})
+                # Add similar cases for other field types as needed.
+                self.fields[field_name] = form_field
 
 
 class StaffForm(forms.ModelForm):

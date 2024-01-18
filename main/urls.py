@@ -12,7 +12,7 @@ from .views import (CreateHome, UseHome,
                     StaffCreateView, StaffListView, StaffDetailView, StaffUpdateView, StaffDeleteView,
                     UserCreateView, UserListView, UserDetailView, UserUpdateView, UserDeleteView,
                     SampleViewSet, ExperimentViewSet, FundingBodyViewSet, InstituteViewSet, MethodViewSet, ProjectViewSet, SampleTypeViewSet, StaffViewSet,
-                    say_hello)
+                    ChooseSampleInfoView, CreateSampleInfoView, sample_type_info, say_hello)
 
 router = DefaultRouter()
 router.register(r'samples', SampleViewSet)
@@ -76,6 +76,9 @@ urlpatterns = [
     path('project/<int:pk>/delete/',
          ProjectDeleteView.as_view(), name='project_delete'),
 
+    path("sample_info/choose", ChooseSampleInfoView.as_view(), name="sample_info_choose"),
+    path("sample_info/create", CreateSampleInfoView.as_view(), name="sample_info_create"),
+
     path("sample/create", SampleCreateView.as_view(), name="sample_create"),
     path('sample/', SampleListView.as_view(), name='sample_list'),
     # the sample URLs all contain underscores because of their special pk
@@ -102,6 +105,9 @@ urlpatterns = [
 # API-related
 
 urlpatterns += [path('api-token-auth/', obtain_auth_token,
-                     name='api-token-auth'),]
+                     name='api-token-auth'),
+                path('api/sample-type-info/<str:sample_type_name>/', 
+                     sample_type_info, name='sample_type_info'),
+               ]
 
 urlpatterns += router.urls

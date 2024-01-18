@@ -27,28 +27,30 @@
 
 <div class="main__right">
 
-  <h1>Samples</h1>
-    
-    <p>
-        Sort by:
-        <a href="?sort_by=name">Name</a> |
-        <a href="?sort_by=name_desc">Name (desc)</a> |
-        <a href="?sort_by=sample_id">Sample ID</a> |
-        <a href="?sort_by=sample_id_desc">Sample ID (desc)</a>
-        <a href="?sort_by=date_registered">Date Registered</a> |
-        <a href="?sort_by=date_registered_desc">Date Registered (desc)</a>
-    </p>
-    <p>
-        Select:
-        <a href="?institute=true">Own Institute</a> |
-        <a href="?institute=false">All Institutes</a>
-    </p>
-    
-    <ul>
-        {% for sample in samples %}
-        <li><a href="{% url 'sample_detail' sample.pk %}">{{ sample.sample_id }} : {{ sample.name }}</a></li>
-        {% endfor %}
-    </ul>
+  <h1>Create Sample Info File</h2>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="form-group">
+          <label for="{{ field.id_for_label }}" class="form-group__label">{{ field.label }}</label>
+          {{ field }} <!-- This will render with the classes specified above -->
+          {% for error in field.errors %}
+              <div class="alert alert-danger">{{ error }}</div>
+          {% endfor %}
+          {% if field.help_text %}
+              <small class="form-text text-muted">{{ field.help_text }}</small>
+          {% endif %}
+      </div>
+      {% endfor %}
+      <button type="submit" class="button--form">Create</button>
+  	</form>
+
+  {% if form.errors %}
+    <div class="alert">
+        {{ form.errors }}
+    </div>
+  {% endif %}
 
 </div>
 
