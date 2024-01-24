@@ -32,7 +32,7 @@ class SampleTypeSolidsSerializer(serializers.Serializer):
         for field in data.keys():
             if field == '':
                 field = None
-        return super(SampleTypeBatterySerializer, self).to_internal_value(data)
+        return super(SampleTypeSolidsSerializer, self).to_internal_value(data)
 
 
 class SampleTypeLiquidSerializer(serializers.Serializer):
@@ -46,7 +46,7 @@ class SampleTypeLiquidSerializer(serializers.Serializer):
         for field in data.keys():
             if field == '':
                 field = None
-        return super(SampleTypeBatterySerializer, self).to_internal_value(data)
+        return super(SampleTypeLiquidSerializer, self).to_internal_value(data)
 
 
 class SampleTypeSuspensionSerializer(serializers.Serializer):
@@ -61,7 +61,7 @@ class SampleTypeSuspensionSerializer(serializers.Serializer):
         for field in data.keys():
             if field == '':
                 field = None
-        return super(SampleTypeBatterySerializer, self).to_internal_value(data)
+        return super(SampleTypeSuspensionSerializer, self).to_internal_value(data)
 
 
 ''' ------------

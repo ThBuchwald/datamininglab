@@ -106,7 +106,7 @@ urlpatterns = [
 
 urlpatterns += [path('api-token-auth/', obtain_auth_token,
                      name='api-token-auth'),
-                path('api/sample-type-info/<str:sample_type_name>/', 
+                path('sampletype-info/<str:sample_type_name>/', 
                      sample_type_info, name='sample_type_info'),
                ]
 

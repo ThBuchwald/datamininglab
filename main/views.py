@@ -1,13 +1,14 @@
 import json
+import logging
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import AccessMixin
 from django.views.generic import TemplateView, CreateView, ListView, DetailView, UpdateView, DeleteView, FormView, View
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-import logging
-from rest_framework import viewsets, mixins, status
+from rest_framework import viewsets, mixins, status, permissions
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -18,7 +19,26 @@ from .serializers import SampleSerializer, ExperimentSerializer, FundingBodySeri
                          MethodSerializer, ProjectSerializer, SampleTypeSerializer, StaffSerializer, \
                          SampleTypeBatterySerializer, SampleTypeSolidsSerializer, SampleTypeLiquidSerializer, SampleTypeSuspensionSerializer
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) # main.views
+
+
+# This class supersedes LoginRequiredMixin and PermissionRequiredMixin and adds logging for all (non-API) Views
+class LoggingPermissionRequiredMixin(LoginRequiredMixin, PermissionRequiredMixin):
+    """
+    Mixin that logs unauthorized access attempts and enforces permission checks.
+    """
+    
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            logger.warning(
+                f"Unauthorized access attempt to {self.request.path} by an unauthenticated user (IP: {self.request.META.get('REMOTE_ADDR')})."
+            )
+        else:
+            logger.warning(
+                f"Unauthorized access attempt to {self.request.path} by user {self.request.user.username} "
+                f"(Required Permissions: {self.permission_required})."
+            )
+        return super().handle_no_permission()
 
 
 ''' ----------
@@ -26,19 +46,24 @@ logger = logging.getLogger(__name__)
     ---------- '''
 
 
-class CreateHome(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
+class CreateHome(LoggingPermissionRequiredMixin, TemplateView):
     login_url = reverse_lazy("login")
     template_name = "main/create.html"
     permission_required = "main.add_sample"
 
 
-class UseHome(LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
+class UseHome(LoggingPermissionRequiredMixin, TemplateView):
     login_url = reverse_lazy("login")
     template_name = "main/use.html"
     permission_required = "main.view_sample"
 
 
-class ChooseSampleInfoView(LoginRequiredMixin, PermissionRequiredMixin, View):
+''' ----------------
+    Sample Info File
+    ---------------- '''
+
+
+class ChooseSampleInfoView(LoggingPermissionRequiredMixin, View):
     permission_required = "main.add_sample"
     
     def get(self, request):
@@ -48,7 +73,7 @@ class ChooseSampleInfoView(LoginRequiredMixin, PermissionRequiredMixin, View):
         return render(request, 'main/crud/sample_info_choose.html', {'sample_types': sample_types})
 
 
-class CreateSampleInfoView(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+class CreateSampleInfoView(LoggingPermissionRequiredMixin, FormView):
     permission_required = "main.add_sample"
     template_name = 'main/crud/sample_info_create.html'
     form_class = SampleInfoForm
@@ -85,7 +110,7 @@ class CreateSampleInfoView(LoginRequiredMixin, PermissionRequiredMixin, FormView
     ----------------- '''
 
 
-class ExperimentCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class ExperimentCreateView(LoggingPermissionRequiredMixin, CreateView):
     model = Experiment
     form_class = ExperimentForm
     template_name = 'main/crud/experiment_create.html'
@@ -112,7 +137,7 @@ class ExperimentCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVi
         return reverse_lazy('experiment_detail', kwargs={'pk': self.object.pk})
 
 
-class ExperimentListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class ExperimentListView(LoggingPermissionRequiredMixin, ListView):
     model = Experiment
     template_name = "main/crud/experiment_list.html"
     permission_required = "main.view_experiment"
@@ -139,35 +164,46 @@ class ExperimentListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         return queryset
 
 
-class ExperimentDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+class ExperimentDetailView(LoggingPermissionRequiredMixin, DetailView):
     model = Experiment
     template_name = 'main/crud/experiment_detail.html'
     permission_required = "main.view_experiment"
     context_object_name = 'experiment'
 
 
-class ExperimentUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class ExperimentUpdateView(LoggingPermissionRequiredMixin, UpdateView):
     model = Experiment
     form_class = ExperimentForm
     template_name = 'main/crud/experiment_update.html'
     context_object_name = 'experiment'
     permission_required = "main.change_experiment"
 
-    def get_queryset(self):
-        return Experiment.objects.filter(institute__in=self.request.user.institute.all())
+    def get_form(self, *args, **kwargs):
+        form = super(ExperimentUpdateView, self).get_form(*args, **kwargs)
+        # Get the institutes that the current user belongs to
+        user_institutes = self.request.user.institute.all()
+        # Modify the queryset for the 'staff' field to only include staff that belongs to the user's institutes
+        form.fields['staff'].queryset = Staff.objects.filter(
+            institute__in=user_institutes)
+        form.fields['method'].queryset = Method.objects.filter(
+            institute__in=user_institutes)
+        return form
+
+    def form_valid(self, form):
+        # Set the 'user' field to the current user before saving the form
+        print(form.errors)
+        form.instance.user = self.request.user
+        return super(ExperimentUpdateView, self).form_valid(form)
 
     def get_success_url(self):
         return reverse_lazy('experiment_detail', kwargs={'pk': self.object.pk})
 
 
-class ExperimentDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class ExperimentDeleteView(LoggingPermissionRequiredMixin, DeleteView):
     model = Experiment
     template_name = 'main/crud/experiment_delete.html'
     permission_required = "main.experiment_method"
     success_url = reverse_lazy("experiment_list")
-
-    def get_queryset(self):
-        return Experiment.objects.filter(institute__in=self.request.user.institute.all())
 
 
 ''' ------------------
@@ -175,7 +211,7 @@ class ExperimentDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteVi
     ------------------ '''
 
 
-class FundingBodyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class FundingBodyCreateView(LoggingPermissionRequiredMixin, CreateView):
     model = FundingBody
     form_class = FundingBodyForm
     template_name = 'main/crud/fundingbody_create.html'
@@ -185,7 +221,7 @@ class FundingBodyCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         return reverse_lazy('fundingbody_detail', kwargs={'pk': self.object.pk})
 
 
-class FundingBodyListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class FundingBodyListView(LoggingPermissionRequiredMixin, ListView):
     model = FundingBody
     template_name = 'main/crud/fundingbody_list.html'
     permission_required = "main.view_fundingbody"
@@ -203,14 +239,14 @@ class FundingBodyListView(LoginRequiredMixin, PermissionRequiredMixin, ListView)
         return queryset
 
 
-class FundingBodyDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+class FundingBodyDetailView(LoggingPermissionRequiredMixin, DetailView):
     model = FundingBody
     template_name = 'main/crud/fundingbody_detail.html'
     permission_required = "main.view_fundingbody"
     context_object_name = 'fundingbody'
 
 
-class FundingBodyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class FundingBodyUpdateView(LoggingPermissionRequiredMixin, UpdateView):
     model = FundingBody
     form_class = FundingBodyForm
     template_name = 'main/crud/fundingbody_update.html'
@@ -221,7 +257,7 @@ class FundingBodyUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateV
         return reverse_lazy('fundingbody_detail', kwargs={'pk': self.object.pk})
 
 
-class FundingBodyDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class FundingBodyDeleteView(LoggingPermissionRequiredMixin, DeleteView):
     model = FundingBody
     template_name = 'main/crud/fundingbody_delete.html'
     permission_required = "main.delete_fundingbody"
@@ -233,7 +269,7 @@ class FundingBodyDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteV
     ---------------- '''
 
 
-class InstituteListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class InstituteListView(LoggingPermissionRequiredMixin, ListView):
     model = Institute
     template_name = 'main/crud/institute_list.html'
     permission_required = "main.view_institute"
@@ -251,7 +287,7 @@ class InstituteListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         return queryset
 
 
-class InstituteDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+class InstituteDetailView(LoggingPermissionRequiredMixin, DetailView):
     model = Institute
     template_name = 'main/crud/institute_detail.html'
     permission_required = "main.view_institute"
@@ -263,7 +299,7 @@ class InstituteDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailVie
     ------------- '''
 
 
-class MethodCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class MethodCreateView(LoggingPermissionRequiredMixin, CreateView):
     model = Method
     form_class = MethodForm
     template_name = 'main/crud/method_create.html'
@@ -279,7 +315,7 @@ class MethodCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         return reverse_lazy('method_detail', kwargs={'pk': self.object.pk})
 
 
-class MethodListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class MethodListView(LoggingPermissionRequiredMixin, ListView):
     model = Method
     template_name = 'main/crud/method_list.html'
     permission_required = "main.view_method"
@@ -309,14 +345,14 @@ class MethodListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         return queryset
 
 
-class MethodDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+class MethodDetailView(LoggingPermissionRequiredMixin, DetailView):
     model = Method
     template_name = 'main/crud/method_detail.html'
     permission_required = "main.view_method"
     context_object_name = 'method'
 
 
-class MethodUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class MethodUpdateView(LoggingPermissionRequiredMixin, UpdateView):
     model = Method
     form_class = MethodForm
     template_name = 'main/crud/method_update.html'
@@ -330,7 +366,7 @@ class MethodUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         return reverse_lazy('method_detail', kwargs={'pk': self.object.pk})
 
 
-class MethodDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class MethodDeleteView(LoggingPermissionRequiredMixin, DeleteView):
     model = Method
     template_name = 'main/crud/method_delete.html'
     permission_required = "main.delete_method"
@@ -345,7 +381,7 @@ class MethodDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     -------------- '''
 
 
-class ProjectCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class ProjectCreateView(LoggingPermissionRequiredMixin, CreateView):
     model = Project
     form_class = ProjectForm
     template_name = 'main/crud/project_create.html'
@@ -355,7 +391,7 @@ class ProjectCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
         return reverse_lazy('project_detail', kwargs={'pk': self.object.pk})
 
 
-class ProjectListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class ProjectListView(LoggingPermissionRequiredMixin, ListView):
     model = Project
     template_name = 'main/crud/project_list.html'
     permission_required = "main.view_project"
@@ -377,14 +413,14 @@ class ProjectListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         return queryset
 
 
-class ProjectDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+class ProjectDetailView(LoggingPermissionRequiredMixin, DetailView):
     model = Project
     template_name = 'main/crud/project_detail.html'
     permission_required = "main.view_project"
     context_object_name = 'project'
 
 
-class ProjectUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class ProjectUpdateView(LoggingPermissionRequiredMixin, UpdateView):
     model = Project
     form_class = ProjectForm
     template_name = 'main/crud/project_update.html'
@@ -395,7 +431,7 @@ class ProjectUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
         return reverse_lazy('project_detail', kwargs={'pk': self.object.pk})
 
 
-class ProjectDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class ProjectDeleteView(LoggingPermissionRequiredMixin, DeleteView):
     model = Project
     template_name = 'main/crud/project_delete.html'
     success_url = reverse_lazy("project_list")
@@ -407,7 +443,7 @@ class ProjectDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView)
     ------------- '''
 
 
-class SampleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class SampleCreateView(LoggingPermissionRequiredMixin, CreateView):
     model = Sample
     form_class = SampleForm
     template_name = 'main/crud/sample_create.html'
@@ -447,7 +483,7 @@ class SampleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         return reverse_lazy('sample_detail', kwargs={'pk': self.object.pk})
 
 
-class SampleListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class SampleListView(LoggingPermissionRequiredMixin, ListView):
     model = Sample
     template_name = 'main/crud/sample_list.html'
     permission_required = "main.view_sample"
@@ -480,25 +516,53 @@ class SampleListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         return queryset
 
 
-class SampleDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+class SampleDetailView(LoggingPermissionRequiredMixin, DetailView):
     model = Sample
     template_name = 'main/crud/sample_detail.html'
     permission_required = "main.view_sample"
     context_object_name = 'sample'
 
 
-class SampleUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class SampleUpdateView(LoggingPermissionRequiredMixin, UpdateView):
     model = Sample
     form_class = SampleForm
     template_name = 'main/crud/sample_update.html'
     context_object_name = 'sample'
     permission_required = "main.update_sample"
 
+    def get_form(self, *args, **kwargs):
+        form = super(SampleUpdateView, self).get_form(*args, **kwargs)
+        user_institutes = self.request.user.institute.all()
+        form.fields['institute'].queryset = user_institutes
+        form.fields['method'].queryset = Method.objects.filter(
+            institute__in=user_institutes)
+        form.fields['parent'].queryset = Sample.objects.filter(
+            institute__in=user_institutes)
+        #form.fields['sample_type'].queryset = SampleType.objects.all()
+        return form
+
+    def form_valid(self, form):
+        # Check if form inputs are valid
+        if form.is_valid():
+            # Set the 'user' field to the current user before saving the form
+            form.instance.user = self.request.user
+            # Here, we print the user to the console
+            print("User: ", self.request.user)
+            # Call the parent form_valid method which also saves the form
+            return super(SampleUpdateView, self).form_valid(form)
+
+    def form_invalid(self, form):
+        # Log form errors to console
+        print("Form is not valid :(")
+        print(form.errors)
+        # Call parent function
+        return super().form_invalid(form)
+
     def get_success_url(self):
         return reverse_lazy('sample_detail', kwargs={'pk': self.object.pk})
 
 
-class SampleDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class SampleDeleteView(LoggingPermissionRequiredMixin, DeleteView):
     model = Sample
     template_name = 'main/crud/sample_delete.html'
     success_url = reverse_lazy("sample_list")
@@ -510,7 +574,7 @@ class SampleDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     ------------ '''
 
 
-class StaffCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class StaffCreateView(LoggingPermissionRequiredMixin, CreateView):
     model = Staff
     form_class = StaffForm
     template_name = 'main/crud/staff_create.html'
@@ -526,7 +590,7 @@ class StaffCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         return reverse_lazy('staff_detail', kwargs={'pk': self.object.pk})
 
 
-class StaffListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class StaffListView(LoggingPermissionRequiredMixin, ListView):
     model = Staff
     template_name = 'main/crud/staff_list.html'
     permission_required = "main.view_staff"
@@ -555,14 +619,14 @@ class StaffListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         return queryset
 
 
-class StaffDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+class StaffDetailView(LoggingPermissionRequiredMixin, DetailView):
     model = Staff
     template_name = 'main/crud/staff_detail.html'
     permission_required = "main.view_staff"
     context_object_name = 'staff'
 
 
-class StaffUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class StaffUpdateView(LoggingPermissionRequiredMixin, UpdateView):
     model = Staff
     form_class = StaffForm
     template_name = 'main/crud/staff_update.html'
@@ -576,7 +640,7 @@ class StaffUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         return reverse_lazy('staff_detail', kwargs={'pk': self.object.pk})
 
 
-class StaffDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class StaffDeleteView(LoggingPermissionRequiredMixin, DeleteView):
     model = Staff
     template_name = 'main/crud/staff_delete.html'
     success_url = reverse_lazy("staff_list")
@@ -590,7 +654,7 @@ class StaffDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
 User = get_user_model()
 
 
-class UserCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class UserCreateView(LoggingPermissionRequiredMixin, CreateView):
     model = User
     form_class = UserForm
     template_name = 'main/crud/user_create.html'
@@ -605,7 +669,7 @@ class UserCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         return reverse_lazy('user_detail', kwargs={'pk': self.object.pk})
 
 
-class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class UserListView(LoggingPermissionRequiredMixin, ListView):
     model = User
     template_name = 'main/crud/user_list.html'
     permission_required = "main.view_user"
@@ -634,7 +698,7 @@ class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         return queryset
 
 
-class UserDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+class UserDetailView(LoggingPermissionRequiredMixin, DetailView):
     model = User
     template_name = 'main/crud/user_detail.html'
     permission_required = "main.view_user"
@@ -650,7 +714,7 @@ class UserDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
         return context
 
 
-class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class UserUpdateView(LoggingPermissionRequiredMixin, UpdateView):
     model = User
     form_class = UserUpdateForm
     template_name = 'main/crud/user_update.html'
@@ -669,7 +733,7 @@ class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         return reverse_lazy('user_detail', kwargs={'pk': self.object.pk})
 
 
-class UserDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class UserDeleteView(LoggingPermissionRequiredMixin, DeleteView):
     model = User
     template_name = 'main/crud/user_delete.html'
     success_url = reverse_lazy("user_list")
@@ -690,6 +754,26 @@ class UserDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     ---------- '''
 
 
+# This class adds logging for all API Viewsets
+class LogUnauthorizedAccess(permissions.BasePermission):
+    """
+    Permission class that logs unauthorized attempts to access API endpoints.
+    """
+
+    def has_permission(self, request, view):
+        # Perform the standard permission check
+        has_permission = super().has_permission(request, view)
+
+        # If the request does not have permission, log it
+        if not has_permission:
+            username = request.user.username if request.user.is_authenticated else 'Anonymous'
+            logger.warning(
+                f"Unauthorized access attempt to {self.request.path} by an unauthenticated user (IP: {self.request.META.get('REMOTE_ADDR')})."
+            )
+
+        return has_permission
+
+
 class ReadWriteViewSet(viewsets.ModelViewSet):  # CRUD endpoints
     pass
 
@@ -703,6 +787,7 @@ class SampleViewSet(ReadWriteViewSet):
     queryset = Sample.objects.select_related('user').all()
     serializer_class = SampleSerializer
     parser_classes = (MultiPartParser, FormParser)
+    permission_classes = [LogUnauthorizedAccess]
 
     def perform_create(self, serializer):
         # Assign the authenticated user (the owner of the token) to the 'user' field of the sample
@@ -713,6 +798,7 @@ class ExperimentViewSet(ReadWriteViewSet):
     queryset = Experiment.objects.select_related('user').all()
     serializer_class = ExperimentSerializer
     parser_classes = (MultiPartParser, FormParser)
+    permission_classes = [LogUnauthorizedAccess]
 
     def perform_create(self, serializer):
         # Assign the authenticated user (the owner of the token) to the 'user' field of the sample
@@ -722,31 +808,37 @@ class ExperimentViewSet(ReadWriteViewSet):
 class FundingBodyViewSet(ReadOnlyViewSet):
     queryset = FundingBody.objects.all()
     serializer_class = FundingBodySerializer
+    permission_classes = [LogUnauthorizedAccess]
 
 
 class InstituteViewSet(ReadOnlyViewSet):
     queryset = Institute.objects.all()
     serializer_class = InstituteSerializer
+    permission_classes = [LogUnauthorizedAccess]
 
 
 class MethodViewSet(ReadOnlyViewSet):
     queryset = Method.objects.all()
     serializer_class = MethodSerializer
+    permission_classes = [LogUnauthorizedAccess]
 
 
 class ProjectViewSet(ReadOnlyViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    permission_classes = [LogUnauthorizedAccess]
 
 
 class SampleTypeViewSet(ReadOnlyViewSet):
     queryset = SampleType.objects.all()
     serializer_class = SampleTypeSerializer
+    permission_classes = [LogUnauthorizedAccess]
 
 
 class StaffViewSet(ReadOnlyViewSet):
     queryset = Staff.objects.all()
     serializer_class = StaffSerializer
+    permission_classes = [LogUnauthorizedAccess]
 
 
 @api_view(['GET'])
