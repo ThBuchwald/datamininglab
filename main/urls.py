@@ -29,7 +29,6 @@ urlpatterns = [
 
     path("", TemplateView.as_view(template_name="main/index.html"), name="home"),
     path("about/", TemplateView.as_view(template_name="main/about.html"), name="about"),
-    path("contact/", TemplateView.as_view(template_name="main/contact.html"), name="contact"),
     path("impressum/", TemplateView.as_view(template_name="main/impressum.html"),
          name="impressum"),
 
