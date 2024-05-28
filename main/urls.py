@@ -1,3 +1,4 @@
+from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 from django.urls import path, include
 from rest_framework.authtoken.views import obtain_auth_token
@@ -31,6 +32,7 @@ urlpatterns = [
     path("about/", TemplateView.as_view(template_name="main/about.html"), name="about"),
     path("impressum/", TemplateView.as_view(template_name="main/impressum.html"),
          name="impressum"),
+    path('login/', auth_views.LoginView.as_view(template_name='main/login.html'), name='login'),
 
     path("create/", CreateHome.as_view(), name="create"),
     path("use/", UseHome.as_view(), name="use"),

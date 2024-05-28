@@ -1,0 +1,34 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% load template_extras %} 
+{% load widget_tweaks %} 
+
+{% block content %}
+
+<div class="main__left"></div>
+
+<div class="main__right">
+
+<h1>Login</h1>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="form-group">
+    <label for="{{ form.username.id_for_label }}" class="form-group__label">Username</label>
+    {% render_field form.username class+="form-group__input" %}
+  </div>
+  <div class="form-group">
+    <label for="{{ form.password.id_for_label }}" class="form-group__label">Password</label>
+    {% render_field form.password class+="form-group__input" %}
+  </div>
+  <button type="submit" class="button--form">Login</button>
+  {% if form.errors %}
+    <div class="alert">
+        {{ form.errors }}
+    </div>
+  {% endif %}
+</form>
+
+</div>
+
+{% endblock %}

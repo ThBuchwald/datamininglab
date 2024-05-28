@@ -8,10 +8,13 @@
   <button class="button--home">Database Structure</button>
   <button class="button--home">API Documentation</button>
   <button class="button--home">Get Access</button>
-  <h2 class="h2--home">Create New Data</h2>
-  <a href="{% url "sample_create" %}"><button class="button--home">New Sample</button></a>
-  <a href="{% url "experiment_create" %}"><button class="button--home">New Experiment</button></a>
-</div>
+
+  {% if request.user.is_authenticated %}
+    <h2 class="h2--home">Create New Data</h2>
+    <a href="{% url "sample_create" %}"><button class="button--home">New Sample</button></a>
+    <a href="{% url "experiment_create" %}"><button class="button--home">New Experiment</button></a>
+  {% endif %}
+  </div>
 
 <div class="main__right">
   <div id="flush-center">
