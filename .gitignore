@@ -8,4 +8,5 @@ general.log
 /media/method_files/*
 /media/sample_info/*
 /media/supplementary_files/*
+/static/*
 poetry.lock
