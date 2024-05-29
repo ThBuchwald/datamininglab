@@ -1,0 +1,36 @@
+{% extends "main/base.html" %} 
+{% load static %} 
+{% load template_extras %} 
+{% block content %}
+
+<div class="main__left">
+  {% if request.user.is_authenticated %}
+    <h2 class="h2--home">Create New Data</h2>
+    <a href="{% url "sample_create" %}"><button class="button--home">New Sample</button></a>
+    <a href="{% url "experiment_create" %}"><button class="button--home">New Experiment</button></a>
+  {% endif %}
+    
+  {% if request.user|has_group:"AdminGroup" %}
+    <a href="{% url "fundingbody_create" %}"><button class="button--home button--home--secondary">New Funding Body</button></a>
+    <a href="{% url "method_create" %}"><button class="button--home button--home--secondary">New Method</button></a>
+    <a href="{% url "project_create" %}"><button class="button--home button--home--secondary">New Project</button></a>
+    <a href="{% url "staff_create" %}"><button class="button--home button--home--secondary">New Staff Member</button></a>
+    <a href="{% url "user_create" %}"><button class="button--home button--home--secondary">New User</button></a>
+  {% endif %}
+</div>
+
+<div class="main__right">
+  <h1>API Documentation</h1>
+  <p>
+    The RESTful API of the Data Mining Lab Freiberg is implemented with <a href="https://www.django-rest-framework.org">Django REST framework</a>. Two automatic API documentations are provided through drf-spectacular:
+    <ul>
+        <li><a href="{% url "redoc" %}">Redoc</a></li>
+        <li><a href="{% url "swagger-ui" %}">Swagger-UI</a></li>
+    </ul>
+  </p>
+  <p>
+    A thorough API explanation with Python examples is in preparation.
+  </p>
+</div>
+
+{% endblock %}

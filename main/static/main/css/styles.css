@@ -2,7 +2,7 @@
   --main-color: rgb(0, 100, 168);
   --highlight-color: rgb(137, 72, 72);
   --text-color: rgb(66, 66, 66);
-  --footer-height: 2rem;
+  --footer-height: 3rem;
 }
 
 /* --------------- */
@@ -11,6 +11,7 @@
 
 html {
   scroll-padding-top: 9rem;
+  line-height: 1.35;
 }
 
 body {
@@ -30,6 +31,7 @@ header {
   grid-template-columns: 30% 50fr 50fr;
   padding: 1.5vw 0 1.5rem 0;
   position: fixed;
+  z-index: 1000;
 }
 
 nav {
@@ -101,11 +103,12 @@ main {
 #page-container {
   min-width: 100%;
   position: relative;
-  min-height: 95.5vh;
+  min-height: 99vh;
 }
 
 #content-wrap {
-  padding-bottom: var(--footer-height);
+  flex: 1;
+  padding-bottom: 5rem;
 }
 
 #footer {
@@ -142,6 +145,45 @@ a {
   max-height: 230px;
 }
 
+.image__decorators__1 {
+  padding: 1.5rem 1.5rem 1.5rem 1.5rem;
+  max-width: 60%;
+}
+
+.image__decorators__2 {
+  padding: 2rem 2rem 2rem 2rem;
+  max-width: 25vw;
+}
+
+.image__decorators__3 {
+  padding: 0.5rem 1rem 0.5rem 1rem;
+  max-width: 100%;
+}
+
+img {
+  position: relative; /* Required for positioning the pseudo-element */
+}
+
+img::after {
+  content: attr(alt); /* Use the alt attribute as the content */
+  position: absolute;
+  bottom: 100%; /* Position above the image */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+img:hover::after {
+  opacity: 1; /* Show the tooltip on hover */
+}
+
 button {
   background-color: var(--main-color);
   border: none;
@@ -171,6 +213,10 @@ button {
   border-color: var(--main-color);
   border-width: 2px;
   font-weight: 500;
+}
+
+.button--home--spacing {
+  margin-right: 10px;
 }
 
 .error {

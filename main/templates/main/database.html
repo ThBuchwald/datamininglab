@@ -1,0 +1,71 @@
+{% extends "main/base.html" %} 
+{% load static %} 
+{% load template_extras %} 
+{% block content %}
+
+<div class="main__left">
+  <h2><a href="#anchor-principle">Principle</a></h2>
+  <h2><a href="#anchor-structure">Database Structure</a></h2>
+  <h2><a href="#anchor-sql">Implementation</a></h2>
+</div>
+
+<div class="main__right">
+  <h1 id="anchor-principle">Principle</h1>
+  <p>
+    The overall structure of the database that is the Data Mining Lab Freiberg is derived from the data storage philosophy developed at the Institute of Mechanical Process Engineering and Mineral Processing. The most important two components of the database are <b>samples</b> and <b>experiments</b>. Samples are unique and are described by a set of metadata. Because the Data Mining Lab Freiberg is concerned with battery recycling, the principal <b>sample types</b> are battery, solid, liquid, and suspension. The sample type <b>battery</b> is introduced to distinguish original end-of-life batteries before the recycling process as well as newly produced battery cells. Depending on their sample type, the necessary metadata changes to accomodate the characteristic properties.
+  </p>
+  <div id="flush-center">
+    <img
+      class="image__decorators__2"
+      src="{% static 'main/images/idea.svg' %}"
+      alt="Principal structure of data in the Data Mining Lab"
+      title="Principal structure of data in the Data Mining Lab"
+    />
+  </div>
+  <p>
+    Samples can be analyzed or processed by <b>methods</b>. Every time a method is used on a sample, an <b>experiment</b> is performed. For example, a sieve analysis produces the particle size distribution of a sample without necessarily altering it, while a crushing step alters the sample and produces a new sample. Samples are therefore defined by a parent sample and by a specific experiment. In this way, any sample in the database can be traced back to its original parent sample that will (most likely) be of type battery. Note that methods can be analysis devices as well as procedures like sample splitting.
+  </p>
+  <p>
+    An experiment produces <b>measurement</b> data and <b>metadata</b>. Metadata for an experiment consists of all relevant parameter values as well as information on certain parts of the method, e.g., measurement ranges of sensors. Measurement data is concerned with the actual data produced during the experiment and may consist of both physical measurements taken during the experiment and derived properties and analysis results.
+  </p>
+
+  <h1 id="anchor-structure">Database Structure</h1>
+  <p>
+    The database itself consists of the aforementioned tables for samples, experiments, and methods. More tables further specify the relationship of the three tables: institute, staff (member), project, and funding body.
+  </p>
+  <div id="flush-center">
+    <img
+      class="image__decorators__3"
+      src="{% static 'main/images/schema.svg' %}"
+      alt="Conceptual model of the Data Mining Lab database"
+      title="Conceptual model of the Data Mining Lab database"
+    />
+  </div>
+  <p>
+    Three user groups exist:
+    <ul>
+      <li>standard user: can access the database, write queries via the provided API and download datasets</li>
+      <li>creator user: can create new samples and experiments by uploading measurement and metadata via the website or the API</li>
+      <li>admin user: can create new methods, staff, projects, funding bodies, and users of the two previous groups</li>
+    </ul>
+    Users having access to the database benefit from using the API to query the data. Only minor sorting capability is provided via the frontend of the Data Mining Lab Freiberg.
+  </p>
+
+  <h1 id="anchor-sql">Implementation</h1>
+  <p>
+    The conceptual model of the Data Mining Lab Freiberg shown above is implemented as a SQL (Postgres) database. Because of the widely differing datasets defined by the different methods, the actual sample and experimental data is stored as zip archives in the form it was uploaded by the user. These uploaded datasets should be consistent for a given method and their structure can be explained as supplementary files uploaded for a given method.
+  </p>
+  <div id="flush-center">
+    <img
+      class="image__decorators__3"
+      src="{% static 'main/images/sql.svg' %}"
+      alt="Logical SQL model of the Data Mining Lab database"
+      title="Logical SQL model of the Data Mining Lab database"
+    />
+  </div>
+  <p>
+    Because the Data Mining Lab Freiberg is implemented in Django (Python), its users benefit from the Object Relational Mapper with which datasets can be queried without any SQL. As of this moment, standard users may access the data via the RESTful implementation of the DMLF API, provided with Django REST framework.
+  </p>
+</div>
+
+{% endblock %}
