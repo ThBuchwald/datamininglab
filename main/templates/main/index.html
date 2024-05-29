@@ -5,9 +5,9 @@
 
 <div class="main__left">
   <h2 class="h2--home">Get and Use Data</h2>
-  <button class="button--home">Database Structure</button>
-  <button class="button--home">API Documentation</button>
-  <button class="button--home">Get Access</button>
+  <a href="{% url "database" %}"><button class="button--home">Database Structure</button></a>
+  <a href="{% url "api" %}"><button class="button--home button--home--spacing">API Documentation</button></a>
+  <a href="{% url "contact" %}"><button class="button--home">Get Access</button></a>
 
   {% if request.user.is_authenticated %}
     <h2 class="h2--home">Create New Data</h2>
@@ -22,15 +22,11 @@
       class="image__homepage"
       src="{% static 'main/images/schematic.svg' %}"
       alt="Schematic representation of the recycling process from a used battery to a new jelly roll"
+      title="Schematic representation of the recycling process from a used battery to a new jelly roll"
     />
   </div>
   <p>
-    Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eaque dolorem
-    aspernatur fuga perspiciatis nam similique sunt quis laborum, inventore
-    atque unde necessitatibus molestias aut ad, totam cupiditate accusantium
-    dolorum repudiandae quod beatae iste, pariatur quo mollitia. Dolor, porro
-    accusantium inventore praesentium quaerat quisquam eum rerum dolorum culpa
-    error, amet quas.
+    Welcome to the website of the Data Mining Lab Freiberg! The DMLF provides data on the battery recycling chain in a structured way. If you want to learn more, click the button below. If you want to contact us, use contact form linked to at the bottom of the page or by clicking on Get Access to the left.
   </p>
   <div id="flush-right">
     <a href={% url "about" %}><button class="button--home button--home--cta">Learn More</button></a>
