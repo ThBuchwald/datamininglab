@@ -22,13 +22,16 @@
           </a>
           <nav>
             <a href={% url "about" %}><button class="button--nav">About</button> </a>
-            <a href="{% url "use" %}"><button class="button--nav">Use</button></a>
-            <a href="{% url "create" %}"><button class="button--nav">Create</button></a>
+            <a href="{% url "use" %}"><button class="button--nav hide-on-mobile">Use</button></a>
+            <a href="{% url "create" %}"><button class="button--nav hide-on-mobile">Create</button></a>
             {% if user.is_authenticated %}
-            <a href={% url "logout" %}><button class="button--nav button--nav--logout">Log Out</button></a>
+            <a href={% url "logout" %}><button class="button--nav button--nav--logout hide-on-mobile">Log Out</button></a>
             {% else %}
-            <a href={% url "login" %}><button class="button--nav button--nav--login">Log In</button></a>
+            <a href={% url "login" %}><button class="button--nav button--nav--login hide-on-mobile">Log In</button></a>
             {% endif %}
+            <a href="{% url "database" %}"><button class="button--nav show-on-mobile">Database Structure</button></a>
+            <a href="{% url "api" %}"><button class="button--nav show-on-mobile">API Documentation</button></a>
+            <a href="{% url "contact" %}"><button class="button--nav show-on-mobile">Get Access</button></a>
           </nav>
         </header>
         <main>

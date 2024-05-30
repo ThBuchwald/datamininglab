@@ -28,7 +28,7 @@ header {
   width: 100%;
   background: white;
   display: grid;
-  grid-template-columns: 30% 50fr 50fr;
+  grid-template-columns: 30% 50fr 50fr 20px;
   padding: 1.5vw 0 1.5rem 0;
   position: fixed;
   z-index: 1000;
@@ -38,7 +38,7 @@ nav {
   align-items: end;
   display: flex;
   flex-direction: row;
-  grid-column: 2/-1;
+  grid-column: 2/4;
   justify-content: end;
   padding: 0 1vw 0 0;
   width: 100%;
@@ -46,6 +46,10 @@ nav {
 
 .nav__image {
   grid-column: 1;
+}
+
+.show-on-mobile {
+  display: none;
 }
 
 .button--nav {
@@ -125,6 +129,55 @@ main {
   padding: 15px 15px 0px 15px;
   font-family: montserrat, Arial, Helvetica, sans-serif;
   font-style: bold;
+}
+
+/* phone screens */
+
+@media (max-width: 750px) {
+  header {
+    grid-template-columns: 50% 50fr 50fr 20px;
+  }
+
+  nav {
+    align-items: end;
+    flex-direction: column;
+  }
+
+  /* Optional: Adjust main content and navigation buttons for better mobile display */
+  .button--nav {
+    border-radius: 10px;
+    font-size: medium;
+    height: 1.8rem;
+    padding: 5px 10px;
+    min-width: 13rem;
+    margin: 0 0 5px 0;
+    font-size: medium; /* Reduce font size for small devices */
+    text-align: center;
+  }
+
+  .hide-on-mobile {
+    display: none; /* This will hide any element with this class on screens narrower than 768px */
+  }
+
+  .show-on-mobile {
+    display: flex; /* This will hide any element with this class on screens narrower than 768px */
+  }
+
+  main {
+    display: grid;
+    grid-template-columns: 100%;
+    height: 100%;
+    padding: 9rem 0.5rem 0 0.5rem;
+  }
+
+  /* Additional style adjustments for smaller screens can be added here */
+  .main__left {
+    display: none;
+  }
+  
+  .main__right {
+    grid-column: 1;
+  }
 }
 
 /* ------------- */
