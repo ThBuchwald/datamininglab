@@ -1,17 +1,18 @@
 from django.core.management.base import BaseCommand
 
 env_vars = {
+    "DEBUG": "True or False",
     "DB_NAME": "datamininglab",
     "DB_HOST": "localhost",
     "DB_USER": "postgres",
     "DB_PASSWORD": "password",
     "DB_PORT": "1234",
-    "SECRET": "use django.core.management.utils.get_random_secret_key()",
     "EMAIL_HOST": "smtp.xxxxxx.com",
     "EMAIL_HOST_USER": "xxxxxx@xxxxxx.com",
     "EMAIL_HOST_PASSWORD": "password",
     "EMAIL_PORT": "123",
-    "DEBUG": "True or False",
+    "MEDIA_FOLDER": "/media",
+    "SECRET": "use django.core.management.utils.get_random_secret_key()",
 }
 
 class Command(BaseCommand):
