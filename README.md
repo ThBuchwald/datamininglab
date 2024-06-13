@@ -18,21 +18,17 @@ If you choose the Poetry route:
 
 ### Create .env
 
-You need a ``.env`` file in your root directory with the following variables:
+You need a ``.env`` file in your root directory with quite a few variables in order for the whole project to work. Django's ``settings.py`` will look up the ``.env`` file to get all required variables and work out of the box.
 
-* ``DB_NAME``
-* ``DB_USER``
-* ``DB_PASSWORD``
-* ``DB_HOST``
-* ``DB_PORT``
-* ``SECRET``
-* ``DEBUG``
+You can create a ``.env.template`` file by running the following command inside the projects directory:
 
-All of these need to be filled with sensible values, but your settings may change and at least the database password and secret key should be your own.
+``$ python manage.py createenv``
+
+Fill out the newly created file and rename it to ``.env``. All of these variables need to be filled with sensible values, but your settings may change and at least the database password and secret key should be your own.
 
 Regarding the secret key: Django offers a function that will create a brandnew key for you: ``django.core.management.utils.get_random_secret_key()``.
 
-Set ``DEBUG`` to ``True`` if you are just trying things out.
+Set ``DEBUG`` to ``True`` if you are just trying things out. Finally: no, neither password should be ``password``.
 
 ### Create a Database
 
