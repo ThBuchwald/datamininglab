@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "main",
     "contact",
     "widget_tweaks",
+    "anymail",
 ]
 
 MIDDLEWARE = [
@@ -192,9 +193,16 @@ LOGGING = {
     },
 }
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = config("EMAIL_HOST")
-EMAIL_PORT = config("EMAIL_PORT")
-EMAIL_HOST_USER = config("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
-EMAIL_USE_TLS = True
+EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
+
+ANYMAIL = {
+    "RESEND_API_KEY": config("EMAIL_HOST_PASSWORD"),
+    "RESEND_API_URL": "https://api.resend.com/",
+}
+
+DEFAULT_FROM_EMAIL = "info@dmlf.de"
+#EMAIL_HOST = config("EMAIL_HOST")
+#EMAIL_PORT = config("EMAIL_PORT")
+#EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+#EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+#EMAIL_USE_TLS = True
