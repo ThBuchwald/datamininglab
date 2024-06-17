@@ -13,7 +13,7 @@ from .views import (CreateHome, UseHome,
                     StaffCreateView, StaffListView, StaffDetailView, StaffUpdateView, StaffDeleteView,
                     UserCreateView, UserListView, UserDetailView, UserUpdateView, UserDeleteView,
                     SampleViewSet, ExperimentViewSet, FundingBodyViewSet, InstituteViewSet, MethodViewSet, ProjectViewSet, SampleTypeViewSet, StaffViewSet,
-                    ChooseSampleInfoView, CreateSampleInfoView, sample_type_info, say_hello)
+                    ChooseSampleInfoView, CreateSampleInfoView, sample_type_info, say_hello, download_file)
 
 router = DefaultRouter()
 router.register(r'samples', SampleViewSet)
@@ -39,6 +39,8 @@ urlpatterns = [
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='main/password/password_reset_done.html'), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='main/password/password_reset_confirm.html'), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='main/password/password_reset_complete.html'), name='password_reset_complete'),
+
+    path('media/<str:subfolder>/<str:filename>/', download_file, name='download_file'),
 
     path("create/", CreateHome.as_view(), name="create"),
     path("use/", UseHome.as_view(), name="use"),

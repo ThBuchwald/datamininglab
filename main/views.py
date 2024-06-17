@@ -1,13 +1,17 @@
+import os
 import json
 import logging
+from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
+from django.core.exceptions import PermissionDenied
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import AccessMixin
 from django.views.generic import TemplateView, CreateView, ListView, DetailView, UpdateView, DeleteView, FormView, View
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets, mixins, status, permissions
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
@@ -868,6 +872,22 @@ def sample_type_info(request, sample_type_name):
         return Response(fields_info)
 
     return Response({'error': 'Sample type not found'}, status=404)
+
+
+@login_required
+def download_file(request, subfolder, filename):
+    file_path = os.path.join(settings.MEDIA_ROOT, subfolder, filename)
+    if not os.path.exists(file_path):
+        raise Http404("File does not exist")
+    
+    # Check if the user is in the 'UseGroup'
+    if not request.user.groups.filter(name='UseGroup').exists():
+        raise PermissionDenied("You do not have permission to access this file")
+
+    with open(file_path, 'rb') as file:
+        response = HttpResponse(file.read(), content_type="application/octet-stream")
+        response['Content-Disposition'] = f'inline; filename="{filename}"'
+        return response
 
 
 ''' ----------------
