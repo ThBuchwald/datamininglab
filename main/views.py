@@ -663,6 +663,7 @@ class UserCreateView(LoggingPermissionRequiredMixin, CreateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['current_user'] = self.request.user
+        kwargs['request'] = self.request
         return kwargs
 
     def get_success_url(self):

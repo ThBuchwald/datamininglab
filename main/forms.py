@@ -190,8 +190,9 @@ class UserForm(UserCreationForm):
         fields = ('username', 'password1', 'password2',
                   'first_name', 'last_name', 'email', 'institute', 'groups')
 
-    def __init__(self, *args, current_user=None, **kwargs):
+    def __init__(self, *args, current_user=None, request=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.request = request
         if current_user:
             self.fields['institute'].queryset = current_user.institute.all()
             self.fields['groups'].queryset = current_user.groups.exclude(
