@@ -12,6 +12,7 @@ from main.models import Experiment, FundingBody, Method, Institute, Project, Sam
 from main.serializers import (SampleTypeBatterySerializer, SampleTypeLiquidSerializer,
                               SampleTypeSolidsSerializer, SampleTypeSuspensionSerializer,
                               )
+from main.utils.email_utils import send_password_reset_email
 
 
 class ExperimentForm(forms.ModelForm):
@@ -187,7 +188,7 @@ class UserForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'password1', 'password2',
-                  'email', 'institute', 'groups')
+                  'first_name', 'last_name', 'email', 'institute', 'groups')
 
     def __init__(self, *args, current_user=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -201,15 +202,21 @@ class UserForm(UserCreationForm):
         self.fields["institute"].initial = []
         self.fields["groups"].initial = []
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        if commit:
-            user.save()
-            user.institute.set(self.cleaned_data.get('institute'))
-            groups = self.cleaned_data.get('groups')
-            if groups:
-                user.groups.set(groups)
-        return user
+    class UserForm(UserCreationForm):
+        # existing code...
+        def save(self, commit=True):
+            user = super().save(commit=False)
+            if commit:
+                user.set_unusable_password()
+                user.save()
+                self.instance.save_m2m()
+                send_password_reset_email(self.request, user)
+                user.institute.set(self.cleaned_data.get('institute'))
+                groups = self.cleaned_data.get('groups')
+                if groups:
+                    user.groups.set(groups)
+            return user
+
 
 
 class UserUpdateForm(forms.ModelForm):
@@ -219,7 +226,8 @@ class UserUpdateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'institute', 'groups')
+        fields = ('username', 'email', 'first_name', 'last_name',
+                  'institute', 'groups')
 
     def __init__(self, *args, current_user=None, **kwargs):
         super().__init__(*args, **kwargs)

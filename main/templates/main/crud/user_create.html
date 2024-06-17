@@ -50,6 +50,14 @@
         {% endif %}
       </div>
       <div class="form-group">
+        <label for="{{ form.name.id_for_label }}" class="form-group__label">First Name</label>
+        {% render_field form.first_name class+="form-group__input" %}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.name.id_for_label }}" class="form-group__label">Last Name</label>
+        {% render_field form.last_name class+="form-group__input" %}
+      </div>
+      <div class="form-group">
         <label for="{{ form.name.id_for_label }}" class="form-group__label">Institute</label>
         {% render_field form.institute class+="form-group__input" %}
       </div>
