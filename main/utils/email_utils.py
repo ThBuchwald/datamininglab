@@ -13,8 +13,8 @@ def send_password_reset_email(request, user):
         reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
     )
 
-    subject = 'Set Up Your Account Password'
-    message = f'Hello {user.first_name},\n\nPlease set up your account password by visiting the following link:\n{password_reset_link}'
+    subject = 'Set Up Your DMLF Password'
+    message = f'Hello {user.first_name},\n\nwelcome to the Data Mining Lab Freiberg!\nA new account has been set up for you.\n\nYour user name is: {user.username}\nPlease set up your account password by visiting the following link:\n{password_reset_link}\n\nWelcome to the Data Mining Lab Freiberg!'
     email_from = settings.DEFAULT_FROM_EMAIL
-    recipient_list = [user.email]
+    recipient_list = [user.email, "datamininglabfreiberg@gmail.com"]
     send_mail(subject, message, email_from, recipient_list, fail_silently=False)
