@@ -207,14 +207,13 @@ class UserForm(UserCreationForm):
         if commit:
             user.set_unusable_password()
             user.save()
-            self.instance.save_m2m()
+            self.save_m2m()
             send_password_reset_email(self.request, user)
             user.institute.set(self.cleaned_data.get('institute'))
             groups = self.cleaned_data.get('groups')
             if groups:
                 user.groups.set(groups)
         return user
-
 
 
 class UserUpdateForm(forms.ModelForm):
