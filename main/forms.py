@@ -202,20 +202,18 @@ class UserForm(UserCreationForm):
         self.fields["institute"].initial = []
         self.fields["groups"].initial = []
 
-    class UserForm(UserCreationForm):
-        # existing code...
-        def save(self, commit=True):
-            user = super().save(commit=False)
-            if commit:
-                user.set_unusable_password()
-                user.save()
-                self.instance.save_m2m()
-                send_password_reset_email(self.request, user)
-                user.institute.set(self.cleaned_data.get('institute'))
-                groups = self.cleaned_data.get('groups')
-                if groups:
-                    user.groups.set(groups)
-            return user
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.set_unusable_password()
+            user.save()
+            self.instance.save_m2m()
+            send_password_reset_email(self.request, user)
+            user.institute.set(self.cleaned_data.get('institute'))
+            groups = self.cleaned_data.get('groups')
+            if groups:
+                user.groups.set(groups)
+        return user
 
 
 
