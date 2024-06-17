@@ -80,6 +80,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experiment
         fields = '__all__'
+        read_only_fields = ('user',)
 
 
 class FundingBodySerializer(serializers.ModelSerializer):
