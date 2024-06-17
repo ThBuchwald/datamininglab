@@ -4,9 +4,6 @@
 /.vscode
 *.env*
 general.log
-/media/experiment_files/*
-/media/method_files/*
-/media/sample_info/*
-/media/supplementary_files/*
+/media/*
 /static/*
 poetry.lock

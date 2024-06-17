@@ -50,7 +50,7 @@
       <li>Sample Info: <a href="{{ sample.sample_info.url }}">Download</a></li>
       <li>Supplementary File: 
         {% if sample.supplementary_file %}
-          <a href="{{ method.method_file.url }}">Download</a>
+          <a href="{{ sample.supplementary_file.url }}">Download</a>
         {% else %}
           None
         {% endif %}
