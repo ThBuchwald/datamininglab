@@ -27,7 +27,7 @@ SECRET_KEY = config("SECRET")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = ['139.20.121.164', 'localhost', '127.0.0.1', 'dmlf.de', 'www.dmlf.de']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'dmlf.de', 'www.dmlf.de']
 
 # Application definition
 
