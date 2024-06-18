@@ -3,17 +3,25 @@ from django.views.generic import TemplateView
 from django.urls import path, include
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.routers import DefaultRouter
-from .views import (CreateHome, UseHome,
-                    ExperimentCreateView, ExperimentListView, ExperimentDetailView, ExperimentUpdateView, ExperimentDeleteView,
-                    FundingBodyCreateView, FundingBodyListView, FundingBodyDetailView, FundingBodyUpdateView, FundingBodyDeleteView,
-                    InstituteListView, InstituteDetailView,
-                    MethodCreateView, MethodListView, MethodDetailView, MethodUpdateView, MethodDeleteView,
-                    ProjectCreateView, ProjectListView, ProjectDetailView, ProjectUpdateView, ProjectDeleteView,
-                    SampleCreateView, SampleListView, SampleDetailView, SampleUpdateView, SampleDeleteView,
-                    StaffCreateView, StaffListView, StaffDetailView, StaffUpdateView, StaffDeleteView,
-                    UserCreateView, UserListView, UserDetailView, UserUpdateView, UserDeleteView,
-                    SampleViewSet, ExperimentViewSet, FundingBodyViewSet, InstituteViewSet, MethodViewSet, ProjectViewSet, SampleTypeViewSet, StaffViewSet,
-                    ChooseSampleInfoView, CreateSampleInfoView, sample_type_info, say_hello, download_file)
+from .views import (
+    CreateHome, UseHome,
+    ExperimentCreateView, ExperimentListView, ExperimentDetailView, ExperimentUpdateView, ExperimentDeleteView,
+    FundingBodyCreateView, FundingBodyListView, FundingBodyDetailView, FundingBodyUpdateView, FundingBodyDeleteView,
+    InstituteListView, InstituteDetailView,
+    MethodCreateView, MethodListView, MethodDetailView, MethodUpdateView, MethodDeleteView,
+    ProjectCreateView, ProjectListView, ProjectDetailView, ProjectUpdateView, ProjectDeleteView,
+    SampleCreateView, SampleListView, SampleDetailView, SampleUpdateView, SampleDeleteView,
+    StaffCreateView, StaffListView, StaffDetailView, StaffUpdateView, StaffDeleteView,
+    UserCreateView, UserListView, UserDetailView, UserUpdateView, UserDeleteView,
+    ChooseSampleInfoView, CreateSampleInfoView, say_hello,
+)
+from .api import (
+    SampleViewSet, ExperimentViewSet, FundingBodyViewSet, InstituteViewSet, MethodViewSet, ProjectViewSet, SampleTypeViewSet, StaffViewSet,
+    sample_type_info,
+)
+from .utils.file_utils import download_file
+from django.contrib.auth.decorators import login_required
+from main.utils.file_utils import download_file
 
 router = DefaultRouter()
 router.register(r'samples', SampleViewSet)
@@ -40,7 +48,8 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='main/password/password_reset_confirm.html'), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='main/password/password_reset_complete.html'), name='password_reset_complete'),
 
-    path('media/<str:subfolder>/<str:filename>/', download_file, name='download_file'),
+    # URL pattern for downloading files
+    path('media/<str:subfolder>/<str:filename>/', login_required(download_file), name='download_file'),
 
     path("create/", CreateHome.as_view(), name="create"),
     path("use/", UseHome.as_view(), name="use"),

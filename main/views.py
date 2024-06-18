@@ -1,27 +1,16 @@
-import os
 import json
 import logging
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
-from django.http import HttpResponse, Http404, FileResponse
-from django.shortcuts import render, redirect
-from django.core.exceptions import PermissionDenied
-from django.urls import reverse, reverse_lazy
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import AccessMixin
 from django.views.generic import TemplateView, CreateView, ListView, DetailView, UpdateView, DeleteView, FormView, View
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.decorators import login_required
-from rest_framework import viewsets, mixins, status, permissions
-from rest_framework.decorators import api_view
-from rest_framework.exceptions import ValidationError
-from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.response import Response
 from .models import Experiment, FundingBody, Institute, Method, Project, Staff, Sample, SampleType
 from .forms import ExperimentForm, FundingBodyForm, MethodForm, ProjectForm, SampleForm, SampleInfoForm, StaffForm, UserForm, UserUpdateForm
-from .serializers import SampleSerializer, ExperimentSerializer, FundingBodySerializer, InstituteSerializer, \
-                         MethodSerializer, ProjectSerializer, SampleTypeSerializer, StaffSerializer, \
-                         SampleTypeBatterySerializer, SampleTypeSolidsSerializer, SampleTypeLiquidSerializer, SampleTypeSuspensionSerializer
+from .serializers import SampleTypeBatterySerializer, SampleTypeSolidsSerializer, SampleTypeLiquidSerializer, SampleTypeSuspensionSerializer
 
 logger = logging.getLogger(__name__) # main.views
 
@@ -752,138 +741,6 @@ class UserDeleteView(LoggingPermissionRequiredMixin, DeleteView):
         context['groups'] = self.object.groups.all()
         context['institutes'] = self.object.institute.all()
         return context
-
-
-''' ----------
-    CRUD - API
-    ---------- '''
-
-
-# This class adds logging for all API Viewsets
-class LogUnauthorizedAccess(permissions.BasePermission):
-    """
-    Permission class that logs unauthorized attempts to access API endpoints.
-    """
-
-    def has_permission(self, request, view):
-        # Perform the standard permission check
-        has_permission = super().has_permission(request, view)
-
-        # If the request does not have permission, log it
-        if not has_permission:
-            username = request.user.username if request.user.is_authenticated else 'Anonymous'
-            logger.warning(
-                f"Unauthorized access attempt to {self.request.path} by an unauthenticated user (IP: {self.request.META.get('REMOTE_ADDR')})."
-            )
-
-        return has_permission
-
-
-class ReadWriteViewSet(viewsets.ModelViewSet):  # CRUD endpoints
-    pass
-
-
-class ReadOnlyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
-                      mixins.ListModelMixin):  # Read-only endpoints
-    pass
-
-
-class SampleViewSet(ReadWriteViewSet):
-    queryset = Sample.objects.select_related('user').all()
-    serializer_class = SampleSerializer
-    parser_classes = (MultiPartParser, FormParser)
-    permission_classes = [LogUnauthorizedAccess]
-
-    def perform_create(self, serializer):
-        # Assign the authenticated user (the owner of the token) to the 'user' field of the sample
-        serializer.save(user=self.request.user)
-
-
-class ExperimentViewSet(ReadWriteViewSet):
-    queryset = Experiment.objects.select_related('user').all()
-    serializer_class = ExperimentSerializer
-    parser_classes = (MultiPartParser, FormParser)
-    permission_classes = [LogUnauthorizedAccess]
-
-    def perform_create(self, serializer):
-        # Assign the authenticated user (the owner of the token) to the 'user' field of the sample
-        serializer.save(user=self.request.user)
-
-
-class FundingBodyViewSet(ReadOnlyViewSet):
-    queryset = FundingBody.objects.all()
-    serializer_class = FundingBodySerializer
-    permission_classes = [LogUnauthorizedAccess]
-
-
-class InstituteViewSet(ReadOnlyViewSet):
-    queryset = Institute.objects.all()
-    serializer_class = InstituteSerializer
-    permission_classes = [LogUnauthorizedAccess]
-
-
-class MethodViewSet(ReadOnlyViewSet):
-    queryset = Method.objects.all()
-    serializer_class = MethodSerializer
-    permission_classes = [LogUnauthorizedAccess]
-
-
-class ProjectViewSet(ReadOnlyViewSet):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = [LogUnauthorizedAccess]
-
-
-class SampleTypeViewSet(ReadOnlyViewSet):
-    queryset = SampleType.objects.all()
-    serializer_class = SampleTypeSerializer
-    permission_classes = [LogUnauthorizedAccess]
-
-
-class StaffViewSet(ReadOnlyViewSet):
-    queryset = Staff.objects.all()
-    serializer_class = StaffSerializer
-    permission_classes = [LogUnauthorizedAccess]
-
-
-@api_view(['GET'])
-def sample_type_info(request, sample_type_name):
-    serializer_classes = {
-        'Battery': SampleTypeBatterySerializer,
-        'Liquid': SampleTypeLiquidSerializer,
-        'Solids': SampleTypeSolidsSerializer,
-        'Suspension': SampleTypeSuspensionSerializer,
-    }
-    # Get the serializer for the requested sample type
-    serializer_class = serializer_classes.get(sample_type_name.capitalize())
-    if serializer_class:
-        # Create a serializer instance
-        serializer = serializer_class()
-        # Return the fields of the serializer as the expected schema
-        fields_info = {
-            field_name: {
-                'type': str(field.__class__.__name__),
-                'help_text': str(field.help_text) if field.help_text else '',
-                'required': field.required,
-                'allow_null': field.allow_null,
-            }
-            for field_name, field in serializer.get_fields().items()
-        }
-        return Response(fields_info)
-
-    return Response({'error': 'Sample type not found'}, status=404)
-
-
-@login_required
-def download_file(request, subfolder, filename):
-    file_path = os.path.join(settings.MEDIA_ROOT, subfolder, filename)
-    if not os.path.exists(file_path):
-        raise Http404("File does not exist")
-    
-    if not request.user.groups.filter(name='UseGroup').exists():
-        raise PermissionDenied("You do not have permission to access this file")
-
-    return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=filename)
 
 
 ''' ----------------
