@@ -44,7 +44,7 @@
   
   <ul>
       {% for staff_member in staff %}
-      <li><a href="{% url 'staff_detail' staff_member.pk %}">{{ staff_member.first_name }} {{ staff_member.last_name }}</a></li>
+      <li><a href="{% url 'staff_detail' staff_member.pk %}">{{ staff_member.pk }} – {{ staff_member.first_name }} {{ staff_member.last_name }}</a></li>
       {% endfor %}
   </ul>
 
