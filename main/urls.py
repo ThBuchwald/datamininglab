@@ -16,8 +16,10 @@ from .views import (
     ChooseSampleInfoView, CreateSampleInfoView, say_hello,
 )
 from .api import (
-    SampleViewSet, ExperimentViewSet, FundingBodyViewSet, InstituteViewSet, MethodViewSet, ProjectViewSet, SampleTypeViewSet, StaffViewSet,
-    sample_type_info,
+    SampleViewSet, ExperimentViewSet, FundingBodyViewSet, InstituteViewSet, MethodViewSet, ProjectViewSet, 
+    SampleTypeViewSet, SampleTypeInfoView, 
+    # staff personal data may not be read via API
+    #StaffViewSet,
 )
 from .utils.file_utils import download_file
 from django.contrib.auth.decorators import login_required
@@ -31,7 +33,8 @@ router.register(r'institutes', InstituteViewSet)
 router.register(r'methods', MethodViewSet)
 router.register(r'projects', ProjectViewSet)
 router.register(r'sampletypes', SampleTypeViewSet)
-router.register(r'staff', StaffViewSet)
+# staff personal data may not be read via API
+#router.register(r'staff', StaffViewSet)
 
 urlpatterns = [
     path("hello/", say_hello),
@@ -124,8 +127,7 @@ urlpatterns = [
 
 urlpatterns += [path('api-token-auth/', obtain_auth_token,
                      name='api-token-auth'),
-                path('sampletype-info/<str:sample_type_name>/', 
-                     sample_type_info, name='sample_type_info'),
+                path('api/sample-type-info/', SampleTypeInfoView.as_view(), name='sample-type-info'),
                ]
 
 urlpatterns += router.urls

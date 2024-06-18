@@ -4,18 +4,25 @@
 {% block content %}
 
 <div class="main__left">
-  {% if request.user.is_authenticated %}
-    <h2 class="h2--home">Create New Data</h2>
-    <a href="{% url "sample_create" %}"><button class="button--home">New Sample</button></a>
-    <a href="{% url "experiment_create" %}"><button class="button--home">New Experiment</button></a>
+  {% if request.user|has_group:"UseGroup" %}
+  <h2 class="h2--home">Get Data</h2>
+  <a href="{% url "sample_list" %}"><button class="button--home">Sample List</button></a>
+  <a href="{% url "experiment_list" %}"><button class="button--home">Experiment List</button></a>
   {% endif %}
-    
+
+  {% if request.user|has_group:"CreateGroup" %}
+  <h2 class="h2--home">Create Data</h2>
+  <a href="{% url "sample_create" %}"><button class="button--home">New Sample</button></a>
+  <a href="{% url "experiment_create" %}"><button class="button--home">New Experiment</button></a>
+  <a href="{% url "sample_info_choose" %}"><button class="button--home button--home--secondary">Create Sample Info</button></a>
+  {% endif %}
+
   {% if request.user|has_group:"AdminGroup" %}
-    <a href="{% url "fundingbody_create" %}"><button class="button--home button--home--secondary">New Funding Body</button></a>
-    <a href="{% url "method_create" %}"><button class="button--home button--home--secondary">New Method</button></a>
-    <a href="{% url "project_create" %}"><button class="button--home button--home--secondary">New Project</button></a>
-    <a href="{% url "staff_create" %}"><button class="button--home button--home--secondary">New Staff Member</button></a>
-    <a href="{% url "user_create" %}"><button class="button--home button--home--secondary">New User</button></a>
+    <a href="{% url "fundingbody_create" %}"><button class="button--home">New Funding Body</button></a>
+    <a href="{% url "method_create" %}"><button class="button--home">New Method</button></a>
+    <a href="{% url "project_create" %}"><button class="button--home">New Project</button></a>
+    <a href="{% url "staff_create" %}"><button class="button--home">New Staff Member</button></a>
+    <a href="{% url "user_create" %}"><button class="button--home">New User</button></a>
   {% endif %}
 </div>
 
@@ -28,9 +35,182 @@
         <li><a href="{% url "swagger-ui" %}">Swagger-UI</a></li>
     </ul>
   </p>
-  <p>
-    A thorough API explanation with Python examples is in preparation.
-  </p>
+
+<h2 id="usingtheapiwithpython">Using the API with Python</h2>
+
+<h3 id="packageimports">Package Imports</h3>
+
+<pre><code class=" python language- python">import requests
+import json
+</code></pre>
+
+<h3 id="endpoints">Endpoints</h3>
+
+<p>Note that list of institutes, methods, funding bodies, and projects may be retrieved from the API. Staff data is only available to administrator users via the web frontend.</p>
+
+<p>Only samples and experiments may be created, updated, or deleted via the API. All other entries in the database need to be made through the web frontend.</p>
+
+<pre><code class=" python language- python"># API base URL
+BASE_URL = 'https://dmlf.de/'
+
+# endpoint for obtaining the auth token
+TOKEN_ENDPOINT = BASE_URL + 'api-token-auth/'
+
+# endpoints for retrieving data
+INSTITUTES_ENDPOINT = BASE_URL + 'institutes/'
+METHODS_ENDPOINT = BASE_URL + 'methods/'
+FUNDINGBODIES_ENDPOINT = BASE_URL + 'fundingbodies/'
+PROJECTS_ENDPOINT = BASE_URL + 'projects/'
+
+# endpoints for creating and reading samples and experiments
+SAMPLETYPES_ENDPOINT = BASE_URL + 'sampletypes/'
+SAMPLES_ENDPOINT = BASE_URL + 'samples/'
+EXPERIMENTS_ENDPOINT = BASE_URL + 'experiments/'
+</code></pre>
+
+<h3 id="tokenauthentication">Token Authentication</h3>
+
+<p>Authentication in the RESTful API of the DataMiningLabFreiberg is handled through tokens. You need to have a working user account to access the API!</p>
+
+<pre><code class=" python language- python">credentials = {
+    'username': username,
+    'password': password
+}
+
+# obtain a token
+response = requests.post(TOKEN_ENDPOINT, data=credentials)
+response_data = response.json()
+token = response_data.get('token')
+
+# set up an authenticated session
+session = requests.Session()
+session.headers.update({
+    'Authorization': f'Token {token}'
+})
+</code></pre>
+
+<p>You can always check if your request was successful by checking <code>response.status_code</code>, <code>response.reason</code>, and <code>response.text</code>.</p>
+
+<h3 id="dataretrieval">Data Retrieval</h3>
+
+<p>Retrieve a list of all entries by using a endpoint directly:</p>
+
+<pre><code class=" python language- python">response = session.get(INSTITUTES_ENDPOINT)
+</code></pre>
+
+<p>Request single entries by providing the ID:</p>
+
+<pre><code class=" python language- python">id = '1'
+
+response = session.get(INSTITUTES_ENDPOINT + id)
+</code></pre>
+
+<p>Request filtered list by adding parameters:</p>
+
+<pre><code class=" python language- python">params = {
+    'city': 'Freiberg'
+}
+
+response = session.get(INSTITUTES_ENDPOINT, params=params)
+</code></pre>
+
+<p>You can use the <code>json</code> package for proper printing:</p>
+
+<pre><code class=" python language- python">json.loads(response.text)
+</code></pre>
+
+<h3 id="samplecreation">Sample Creation</h3>
+
+<h4 id="sampleinfofile">Sample Info File</h4>
+
+<p>Every sample requires a sample info file, which is a JSON containing metadata of the sample. You may use the API to get the required structure of the JSON file. There are several different Sample types, all possible ones are available at:</p>
+
+<pre><code class=" python language- python">response = session.get(SAMPLETYPES_ENDPOINT)
+</code></pre>
+
+<p>Get the JSON structure for a given sample type:</p>
+
+<pre><code class=" python language- python">sample_type_name = 'Battery'
+sample_type_info_url = f"{BASE_URL}sampletype-info/{sample_type_name}/"
+response = session.get(sample_type_info_url)
+</code></pre>
+
+<p>You can now create a <code>sample_info</code> object according to the given JSON structure:</p>
+
+<pre><code class=" python language- python">sample_info = {
+    "name": "mock battery",
+    "composition": "NMC111",
+    "manufacturer": "car manufacturer",
+    "produced": "",
+    "comment": "here be dragons"
+}
+
+sample_info_json = json.dumps(sample_info)
+</code></pre>
+
+<h4 id="samplepostrequest">Sample POST Request</h4>
+
+<p><code>sample_info</code> and <code>supplementary_file</code> need to be supplied as files in the HTTP request.</p>
+
+<pre><code class=" python language- python"># files tuple/list has to be constructed as 
+# (file_name, (file_name, file_content, mime_type))
+files = {
+    'sample_info': ('sample_info.json', sample_info_file, 'application/json')
+}
+
+# sample data to be sent in the POST request
+sample_data = {
+    'sample_id': '240616_125138_010102',
+    'name': 'mock sample',
+    'institute': 1,
+    'project': 1,
+    'method': 1,
+    'parent': '',
+    'sample_type': 1,
+    'date_created': '2024-06-16',
+}
+
+# POST request
+response = session.post(SAMPLES_ENDPOINT, data=sample_data, files=files)
+</code></pre>
+
+<p>Make sure your response is <code>(201, 'Created')</code>.</p>
+
+<h4 id="samplepostrequestwithexistingfiles">Sample POST Request with Existing Files</h4>
+
+<pre><code class=" python language- python"># Open JSON and ZIP files for request
+with open('sample_info.json', 'rb') as json_file, open('sample.zip', 'rb') as zip_file:
+    # The key in the files dictionary ('sample_info' in this case) should match
+    # the name of the field expected by the server for the file upload
+    files = {
+        'sample_info': ('sample_info.json', json_file, 'application/json'),
+        'supplementary_file': ('sample.zip', zip_file, 'application/zip'),
+    }
+
+    # Make the POST request with the file and any other data
+    response = session.post(SAMPLES_ENDPOINT, data=sample_data, files=files)
+</code></pre>
+
+<h3 id="experimentcreation">Experiment Creation</h3>
+
+<pre><code class=" python language- python">experiment_data = {
+    'name': 'mock experiment',
+    'method': '1',
+    'date_created': '2023-04-01',
+    'sample': '240616_125138_010102',
+    'staff': '1',
+    'project': '1',
+}
+
+with open('experiment.zip', 'rb') as zip_file:
+    # The key in the files dictionary ('sample_info' in this case) should match
+    # the name of the field expected by the server for the file upload
+    files = {'experiment_file': ('experiment.zip', zip_file, 'application/zip')}
+
+    # Make the POST request with the file and any other data
+    response = session.post(EXPERIMENTS_ENDPOINT, data=experiment_data, files=files)
+</code></pre>
+
 </div>
 
 {% endblock %}
