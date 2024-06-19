@@ -85,25 +85,21 @@ class SampleForm(forms.ModelForm):
         sample_info = self.cleaned_data.get('sample_info')
         sample_type = self.cleaned_data.get('sample_type')
 
-        # Print debug information on sample_info and sample_type
-        # print("Sample info: ", sample_info)
-        # print("Sample type: ", sample_type)
+        if not sample_info:
+            raise forms.ValidationError("This field is required.")
 
-        # Validate the JSON file based on the chosen sample type
         try:
             sample_info_json = json.load(sample_info)
-
-            # Print debug information
-            # print("Sample Info JSON: ", sample_info_json)
-            # print("Sample Type: ", sample_type)
-
-            if not self.validate_json_structure(sample_info_json, sample_type):
-                raise forms.ValidationError(
-                    "Invalid JSON structure for the selected sample type.")
         except json.JSONDecodeError:
-            raise forms.ValidationError("Invalid JSON file.")
+            raise forms.ValidationError("Invalid JSON file. Please upload a valid JSON file.")
+        except Exception as e:
+            raise forms.ValidationError(f"An error occurred while processing the file: {e}")
+
+        if not self.validate_json_structure(sample_info_json, sample_type):
+            raise forms.ValidationError("Invalid JSON structure for the selected sample type.")
 
         return sample_info
+
 
     def validate_json_structure(self, json_data, sample_type):
         # Map sample types to their serializers

@@ -1,0 +1,119 @@
+{% extends "main/base.html" %} 
+{% load static %} 
+{% load template_extras %} 
+{% block content %}
+
+<div class="main__left">
+  {% if request.user|has_group:"UseGroup" %}
+  <h2 class="h2--home">Get Data</h2>
+  <a href="{% url "sample_list" %}"><button class="button--home">Sample List</button></a>
+  <a href="{% url "experiment_list" %}"><button class="button--home">Experiment List</button></a>
+  {% endif %}
+
+  {% if request.user|has_group:"CreateGroup" %}
+  <h2 class="h2--home">Create Data</h2>
+  <a href="{% url "sample_create" %}"><button class="button--home">New Sample</button></a>
+  <a href="{% url "experiment_create" %}"><button class="button--home">New Experiment</button></a>
+  <a href="{% url "sample_info_choose" %}"><button class="button--home button--home--secondary">Create Sample Info</button></a>
+  {% endif %}
+
+  {% if request.user|has_group:"AdminGroup" %}
+    <a href="{% url "fundingbody_create" %}"><button class="button--home">New Funding Body</button></a>
+    <a href="{% url "method_create" %}"><button class="button--home">New Method</button></a>
+    <a href="{% url "project_create" %}"><button class="button--home">New Project</button></a>
+    <a href="{% url "staff_create" %}"><button class="button--home">New Staff Member</button></a>
+    <a href="{% url "user_create" %}"><button class="button--home">New User</button></a>
+  {% endif %}
+</div>
+
+<div class="main__right">
+
+    <h1 id="webdocumentation">Web Documentation</h1>
+
+    <p>All functionality in terms of creating data can be handled by the web interface. Furthermore, semi-automatic Sample and Experiment creation and proper querying may be accomplished by the API. Please refer to the <a href="{% url "api" %}">API Documentation</a> if you want to query the data or need to upload many Samples and/or Experiments.</p>
+
+    <h2 id="rightsmanagement">Rights Management</h2>
+
+    <p>There are three user categories, each of which allows you to do certain things in the Data Mining Lab Freiberg:</p>
+
+    <ul>
+    <li><strong>UseGroup</strong>: Users can query DMLF data. Note that access to staff entries is not allowed.</li>
+
+    <li><strong>CreateGroup</strong>: Users can create Samples and Experiments both via frontend and API.</li>
+
+    <li><strong>AdminGroup</strong>: Users can create new Funding Bodies, Methods, Projects, Staff members, and Users (of the previous two categories).</li>
+    </ul>
+
+    <p>Depending on whether you belong to a group, you will see buttons on the left, allowing you to query or create data. In the following, you will get to know how to create the two most important data types, Samples and Experiments.</p>
+
+    <p>User groups are supposed to be escalated: when a user belongs to the CreateGroup, they should also be a member of the UseGroup. If they are belonging to the AdminGroup, they should also be members of both UseGroup and CreateGroup. Note that users belonging to the AdminGroup may only be created by the DMLF administrator. If you think you should be in the AdminGroup, reach out via the <a href="{% url "contact" %}">contact page</a>.</p>
+
+    <h2 id="samplecreation">Sample Creation</h2>
+
+    <p>If you are in the CreateGroup, you will see the button <strong>New Sample</strong> to the left. Alternatively, you find this functionality by clicking on <strong>Create</strong> above.</p>
+
+    <p>There are a few things to consider when creating a new sample:</p>
+
+    <h3 id="sampleid">Sample ID</h3>
+
+    <p>The Sample ID needs to be of the format: <code>yymmdd_hhmmss_iiaaaa</code>. All except for the underscores need to be digits (<code>0</code> through <code>9</code>). This Sample ID needs to be unique and is the primary key for a Sample in the database. When you transfer a sample to a colleague / another institute, you will need to tell them the Sample ID so that samples can be tracked over several generations and experiments.</p>
+
+    <p>The first six digits (<code>yymmdd</code>) contain a date. This can be the date of creation of the sample or its entry in the DMLF.</p>
+
+    <p>The next sic digits (<code>hhmmss</code>) are a time that belongs to the date. You can enter all zeroes, as long as the ID is still unique.</p>
+
+    <p>The last six digits mostly fulfil the purpose of giving a human-readable tag to a given sample. The six digits consist of:</p>
+
+    <ul>
+    <li><code>ii</code>: a number signifying the research institute at which the sample was created. Find the number of an institute by browsing the <a href="{% url "institute_list" %}">Institute List</a>.</li>
+
+    <li><code>aaaa</code>: a number signifying the method with which a sample was created. Find the number of a method by browsing the <a href="{% url "method_list" %}">Method List</a>. If your sample has no parent, you may set <code>aaaa</code> to zeroes.</li>
+    </ul>
+
+    <h3 id="parentsampleid">Parent Sample ID</h3>
+
+    <p>If a Sample was created from a parent Sample, you <strong>must</strong> choose the corresponsing Sample ID of the parent. This is necessary to ensure tracebility of samples to their origin. If you are entering a origin sample without parents, leave both Parent Sample ID and Method empty.</p>
+
+    <h3 id="project">Project</h3>
+
+    <p>A sample must belong to a Project. A Project does not need to be a research project with funding, but can be experimental campaigns, etc.</p>
+
+    <h3 id="sampletypeandsampleinfo">Sample Type and Sample Info</h3>
+
+    <p>Additional metadata needs to be added to a Sample that defines the Sample further. Depending on when you use the DMLF, a number of different <strong>Sample Types</strong> may be available. Depending on the chosen Sample Type, the required metadata, the <strong>Sample Info</strong> changes. Because the necessary metadata may change as the DMLF matures, the Sample Info is stored as JSON on the server, but not as an entry in the database, to not need to change the database structure.</p>
+
+    <p>You need to upload a JSON containing relevant metadata, the <strong>Sample Info file</strong>. To know which metadata is required, you can:</p>
+
+    <ul>
+    <li><a href="{% url "api" %}">query the API</a> or</li>
+
+    <li>create a Sample Info file on the website directly by clicking the <a href="{% url "sample_info_choose" %}">Create Sample Info</a> button. Select the Sample Type and enter relevant metadata. A Sample Info file will be created for you to download.</li>
+    </ul>
+
+    <p>After creating an appropriate JSON, select it for upload.</p>
+
+    <h3 id="supplementaryfile">Supplementary File</h3>
+
+    <p>If you want to add additional information for a Sample, you can choose a supplementary file. This file needs to be a ZIP file, which may contain any sort of data of any format.</p>
+
+    <h2 id="experimentcreation">Experiment Creation</h2>
+
+    <p>Experiments can analyze or modify a given Sample. When modifying a Sample, most often a new Sample will be created, for example by comminution or sample splitting. All of the metadata is <strong>required</strong>, therefore make sure that</p>
+
+    <ul>
+    <li>the Sample that an Experiment is performed on, has been created previosly, and</li>
+
+    <li>the method that is used exists in the database.</li>
+    </ul>
+
+    <h3 id="data">Data</h3>
+
+    <p>Any and all relevant data for a given Experiment may be uploaded as a single ZIP file. Experiment data can consist of both raw measurements and analyses. Note that experimental data should be complete, <a href="https://www.go-fair.org/fair-principles/">accesible and re-usable.</a></p>
+
+    <h2 id="dataquerying">Data Querying</h2>
+
+    <p>The web frontend only offers very limited options to query the data in the DMLF. When you click on either Sample List or Experiment List buttons to the left, you will be shown a list of all entries available to you. You can sort by certain criteria and limit the entries to your institute(s). When you click on an entry, you will see the direct metadata of the entry and links to download corresponding files. For more in-depth querying, <a href="{% url "api" %}">use the API</a>.</p>
+
+</div>
+
+{% endblock %}

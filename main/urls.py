@@ -43,6 +43,7 @@ urlpatterns = [
     path("about/", TemplateView.as_view(template_name="main/about.html"), name="about"),
     path("database/", TemplateView.as_view(template_name="main/database.html"), name="database"),
     path("api/", TemplateView.as_view(template_name="main/api.html"), name="api"),
+    path("web/", TemplateView.as_view(template_name="main/web.html"), name="howto"),
     path("impressum/", TemplateView.as_view(template_name="main/impressum.html"),
          name="impressum"),
     path('login/', auth_views.LoginView.as_view(template_name='main/login.html'), name='login'),

@@ -38,7 +38,7 @@
 
   <ul>
       {% for institute in institutes %}
-      <li><a href="{% url 'institute_detail' institute.pk %}">{{ institute.name }}</a> ({{ institute.affiliation }})</li>
+      <li>{{ institute.id }} – <a href="{% url 'institute_detail' institute.pk %}">{{ institute.name }}</a> ({{ institute.affiliation }})</li>
       {% endfor %}
   </ul>
   

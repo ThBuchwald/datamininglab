@@ -44,7 +44,7 @@
     
     <ul>
         {% for method in methods %}
-        <li><a href="{% url 'method_detail' method.pk %}">{{ method.name }}</a></li>
+        <li>{{ method.pk }} – <a href="{% url 'method_detail' method.pk %}">{{ method.name }}</a></li>
         {% endfor %}
     </ul>
  

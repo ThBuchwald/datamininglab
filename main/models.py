@@ -58,7 +58,8 @@ class Method(models.Model):
     name = models.CharField(max_length=255)
     # if additional information for the method is supplied, it will be stored in method_folder
     method_file = models.FileField(upload_to="method_files",
-                                   verbose_name="path to method files")
+                                   verbose_name="path to method files",
+                                   null=True, blank=True)
     date_registered = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:

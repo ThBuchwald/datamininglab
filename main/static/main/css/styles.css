@@ -343,6 +343,11 @@ p {
   padding: 0.5rem 0;
 }
 
+.form-group__explainer {
+  font-size: small;
+  padding: 0 0;
+}
+
 .form-group__label {
   display: inline-block;
   min-width: 10rem;
