@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from main.models import Institute, Staff, Method, FundingBody, Project, SampleType, Sample, Experiment
-from main.utils.email_utils import send_password_reset_email
+from main.utils.email_utils import send_initial_reset_email
 
 User = get_user_model()
 
@@ -33,7 +33,7 @@ class UserAdmin(BaseUserAdmin):
         if not change:  # New user
             obj.set_unusable_password()
             obj.save()
-            send_password_reset_email(request, obj)
+            send_initial_reset_email(request, obj)
 
 # Register other models here
 admin.site.register(Institute)

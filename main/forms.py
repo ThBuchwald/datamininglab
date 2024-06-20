@@ -12,7 +12,7 @@ from main.models import Experiment, FundingBody, Method, Institute, Project, Sam
 from main.serializers import (SampleTypeBatterySerializer, SampleTypeLiquidSerializer,
                               SampleTypeSolidsSerializer, SampleTypeSuspensionSerializer,
                               )
-from main.utils.email_utils import send_password_reset_email
+from main.utils.email_utils import send_initial_reset_email
 
 
 class ExperimentForm(forms.ModelForm):
@@ -205,7 +205,7 @@ class UserForm(UserCreationForm):
             user.set_unusable_password()
             user.save()
             self.save_m2m()
-            send_password_reset_email(self.request, user)
+            send_initial_reset_email(self.request, user)
             user.institute.set(self.cleaned_data.get('institute'))
             groups = self.cleaned_data.get('groups')
             if groups:
