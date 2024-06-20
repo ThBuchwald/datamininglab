@@ -21,7 +21,9 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'first_name', 'last_name', 'groups', 'institute', 'password1', 'password2'),
+            'fields': ('username', 'email', 'first_name', 'last_name', 'groups', 'institute', 
+                       'password1', 'password2'
+                       ),
         }),
     )
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
@@ -29,11 +31,22 @@ class UserAdmin(BaseUserAdmin):
     ordering = ('username',)
 
     def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
         if not change:  # New user
+            # Set a dummy password initially
+            dummy_password = "temporarypassword12345"
+            obj.set_password(dummy_password)
+            obj.save()
+            form.save_m2m()
+            # Set the password to be unusable after saving the user
             obj.set_unusable_password()
             obj.save()
+
+            # Fetch the user from the database to ensure all related fields are populated
+            obj.refresh_from_db()
+            # Send the initial reset email
             send_initial_reset_email(request, obj)
+        else:
+            super().save_model(request, obj, form, change)
 
 # Register other models here
 admin.site.register(Institute)

@@ -27,6 +27,7 @@ def send_initial_reset_email(request, user):
         f'Please set up your account password by visiting the following link:\n{password_reset_link}\n\n'
         f'Welcome to the Data Mining Lab Freiberg!'
     )
+    print(message)
     email_from = settings.DEFAULT_FROM_EMAIL
     recipient_list = [user.email, "datamininglabfreiberg@gmail.com"]
     send_mail(subject, message, email_from, recipient_list, fail_silently=False)

@@ -177,13 +177,17 @@ User = get_user_model()
 
 
 class UserForm(UserCreationForm):
+    # password will be created by the new user
+    password1 = forms.CharField(required=False, widget=forms.PasswordInput)
+    password2 = forms.CharField(required=False, widget=forms.PasswordInput)
+
     groups = forms.ModelMultipleChoiceField(
         queryset=Group.objects.none(), required=False,
         widget=forms.SelectMultiple(attrs={"size": 3}))
 
     class Meta:
         model = User
-        fields = ('username', 'password1', 'password2',
+        fields = ('username', #'password1', 'password2',
                   'first_name', 'last_name', 'email', 'institute', 'groups')
 
     def __init__(self, *args, current_user=None, request=None, **kwargs):
@@ -202,14 +206,17 @@ class UserForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         if commit:
+            dummy_password = "temporarypassword12345"
+            user.set_password(dummy_password)
             user.set_unusable_password()
             user.save()
             self.save_m2m()
-            send_initial_reset_email(self.request, user)
             user.institute.set(self.cleaned_data.get('institute'))
             groups = self.cleaned_data.get('groups')
             if groups:
                 user.groups.set(groups)
+            # mail needs to be send after the previous code, otherwise user info will not be available (yet)
+            send_initial_reset_email(self.request, user)
         return user
 
 
