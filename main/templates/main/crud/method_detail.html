@@ -30,7 +30,13 @@
     <h1>{{ method.name }}</h1>
     <ul>
         <li>Institute: {{ method.institute }}</li>
-        <li>Method File: <a href="{{ method.method_file.url }}">{{ method.method_file.name|basename }}</a></li>
+        <li>Method File: 
+          {% if method.method_file %}
+            <a href="{{ method.method_file.url }}">Download</a>
+          {% else %}
+            None
+          {% endif %}
+        </li>
         <li>Date Registered: {{ method.date_registered }}</li>
     </ul>
 
