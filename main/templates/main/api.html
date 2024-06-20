@@ -131,7 +131,7 @@ response = session.get(INSTITUTES_ENDPOINT, params=params)
 <p>Get the JSON structure for a given sample type:</p>
 
 <pre><code class=" python language- python">sample_type_name = 'Battery'
-sample_type_info_url = f"{BASE_URL}sampletype-info/{sample_type_name}/"
+sample_type_info_url = f"{BASE_URL}api/sample-type-info/{sample_type_name}/"
 response = session.get(sample_type_info_url)
 </code></pre>
 

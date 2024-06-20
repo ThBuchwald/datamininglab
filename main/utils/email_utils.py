@@ -21,13 +21,12 @@ def send_initial_reset_email(request, user):
     message = (
         f'Hello {user.first_name},\n\n'
         f'welcome to the Data Mining Lab Freiberg! A new account has been set up for you.\n\n'
-        f'Your user name is: {user.username}\n'
-        f'You belong to the following user categories: {group_names}\n'
+        f'Your user name is: {user.username}\n\n'
+        f'You belong to the following user categories: {group_names}\n\n'
         f'You belong to the following institutes: {institute_names}\n\n'
         f'Please set up your account password by visiting the following link:\n{password_reset_link}\n\n'
         f'Welcome to the Data Mining Lab Freiberg!'
     )
-    print(message)
     email_from = settings.DEFAULT_FROM_EMAIL
     recipient_list = [user.email, "datamininglabfreiberg@gmail.com"]
     send_mail(subject, message, email_from, recipient_list, fail_silently=False)

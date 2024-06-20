@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Sample, Experiment, FundingBody, Institute, Method, Project, SampleType, Staff
+from .validators import validate_sample_id
 
 ''' ------------
     sample types
@@ -8,10 +9,10 @@ from .models import Sample, Experiment, FundingBody, Institute, Method, Project,
 
 class SampleTypeBatterySerializer(serializers.Serializer):
     name = serializers.CharField(max_length=255)
-    composition = serializers.CharField(max_length=255, allow_blank=True)
+    composition = serializers.CharField(max_length=255, allow_blank=True, required=False)
     manufacturer = serializers.CharField(max_length=255)
     produced = serializers.DateField(allow_null=True)
-    comment = serializers.CharField(max_length=255, allow_null=True)
+    comment = serializers.CharField(max_length=255, allow_null=True, required=False)
 
     # allowing all empty values to be accepted as null
     def to_internal_value(self, data):
@@ -24,9 +25,9 @@ class SampleTypeBatterySerializer(serializers.Serializer):
 class SampleTypeSolidsSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=255)
     weight_in_g = serializers.FloatField(min_value=0.0)
-    volume_in_ccm = serializers.FloatField(min_value=0.0, allow_null=True)
-    density_in_gccm = serializers.FloatField(min_value=0.0, allow_null=True)
-    comment = serializers.CharField(max_length=255, allow_null=True)
+    volume_in_ccm = serializers.FloatField(min_value=0.0, allow_null=True, required=False)
+    density_in_gccm = serializers.FloatField(min_value=0.0, allow_null=True, required=False)
+    comment = serializers.CharField(max_length=255, allow_null=True, required=False)
 
     def to_internal_value(self, data):
         for field in data.keys():
@@ -38,9 +39,9 @@ class SampleTypeSolidsSerializer(serializers.Serializer):
 class SampleTypeLiquidSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=255)
     volume_in_ccm = serializers.FloatField(min_value=0.0)
-    weight_in_g = serializers.FloatField(min_value=0.0, allow_null=True)
-    density_in_gccm = serializers.FloatField(min_value=0.0, allow_null=True)
-    comment = serializers.CharField(max_length=255, allow_null=True)
+    weight_in_g = serializers.FloatField(min_value=0.0, allow_null=True, required=False)
+    density_in_gccm = serializers.FloatField(min_value=0.0, allow_null=True, required=False)
+    comment = serializers.CharField(max_length=255, allow_null=True, required=False)
 
     def to_internal_value(self, data):
         for field in data.keys():
@@ -54,8 +55,8 @@ class SampleTypeSuspensionSerializer(serializers.Serializer):
     liquid = serializers.CharField(max_length=255)
     solid = serializers.CharField(max_length=255)
     volume_in_ccm = serializers.FloatField(min_value=0.0)
-    weight_in_g = serializers.FloatField(min_value=0.0, allow_null=True)
-    density_in_gccm = serializers.FloatField(min_value=0.0, allow_null=True)
+    weight_in_g = serializers.FloatField(min_value=0.0, allow_null=True, required=False)
+    density_in_gccm = serializers.FloatField(min_value=0.0, allow_null=True, required=False)
 
     def to_internal_value(self, data):
         for field in data.keys():
@@ -69,7 +70,10 @@ class SampleTypeSuspensionSerializer(serializers.Serializer):
     ------------ '''
 
 
+
 class SampleSerializer(serializers.ModelSerializer):
+    sample_id = serializers.CharField(validators=[validate_sample_id])
+    
     class Meta:
         model = Sample
         fields = '__all__'

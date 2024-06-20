@@ -13,6 +13,8 @@ from main.serializers import (SampleTypeBatterySerializer, SampleTypeLiquidSeria
                               SampleTypeSolidsSerializer, SampleTypeSuspensionSerializer,
                               )
 from main.utils.email_utils import send_initial_reset_email
+from .validators import validate_sample_id
+
 
 
 class ExperimentForm(forms.ModelForm):
@@ -72,6 +74,11 @@ class SampleForm(forms.ModelForm):
         model = Sample
         fields = ["sample_id", "name", "parent", "method", "date_created",
                   "institute", "project", "sample_type", "sample_info", "supplementary_file"]
+
+    def clean_sample_id(self):
+        sample_id = self.cleaned_data.get('sample_id')
+        validate_sample_id(sample_id)
+        return sample_id
 
     def clean_supplementary_file(self):
         file = self.cleaned_data.get('supplementary_file')
