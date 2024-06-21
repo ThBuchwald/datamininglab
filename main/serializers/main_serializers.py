@@ -7,12 +7,19 @@ from main.utils.validation_utils import validate_sample_id, validate_json_struct
 
 
 class SampleSerializer(serializers.ModelSerializer):
-    sample_id = serializers.CharField(validators=[validate_sample_id])
-    
     class Meta:
         model = Sample
         fields = '__all__'
         read_only_fields = ('user',)
+
+    def validate_sample_id(self, sample_id):
+        validate_sample_id(sample_id)
+
+        # Check if the sample_id already exists
+        if Sample.objects.filter(sample_id=sample_id).exists():
+            raise serializers.ValidationError("Sample ID already exists. Please provide a unique Sample ID.")
+
+        return sample_id
 
     def validate_supplementary_file(self, file):
         if file:

@@ -59,13 +59,12 @@ def validate_json_structure(json_data, sample_type):
     serializer_class = sample_type_serializers.get(sample_type)
 
     if not serializer_class:
-        return False
+        return False, "Invalid sample type name."
 
     # Validate the JSON data using the serializer
     serializer = serializer_class(data=json_data)
 
     if not serializer.is_valid():
-        print(serializer.errors)  # Log serializer errors to console
-        return False
+        return False, serializer.errors
 
     return True

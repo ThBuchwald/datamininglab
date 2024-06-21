@@ -78,6 +78,11 @@ class SampleForm(forms.ModelForm):
     def clean_sample_id(self):
         sample_id = self.cleaned_data.get('sample_id')
         validate_sample_id(sample_id)
+
+        # Check if the sample_id already exists
+        if Sample.objects.filter(sample_id=sample_id).exists():
+            raise ValidationError("Sample ID already exists. Please provide a unique Sample ID.")
+
         return sample_id
 
     def clean_supplementary_file(self):
