@@ -4,16 +4,25 @@
 {% block content %}
 
 <div class="main__left">
-  <h2 class="h2--home">Get and Use Data</h2>
+  <h2 class="h2--home">Get Started</h2>
+  <a href="{% url "about" %}"><button class="button--home">About</button></a>
   <a href="{% url "database" %}"><button class="button--home">Database Structure</button></a>
-  <a href="{% url "howto" %}"><button class="button--home button--home--spacing">Web Documentation</button></a>
-  <a href="{% url "api" %}"><button class="button--home button--home--spacing">API Documentation</button></a>
   <a href="{% url "contact" %}"><button class="button--home">Get Access</button></a>
 
-  {% if request.user.is_authenticated %}
-    <h2 class="h2--home">Create New Data</h2>
-    <a href="{% url "sample_create" %}"><button class="button--home">New Sample</button></a>
-    <a href="{% url "experiment_create" %}"><button class="button--home">New Experiment</button></a>
+  <h2 class="h2--home">Get Data</h2>
+  <a href="{% url "howto" %}"><button class="button--home button--home--spacing">Web Documentation</button></a>
+  <a href="{% url "api" %}"><button class="button--home button--home--spacing">API Documentation</button></a>
+
+  {% if request.user|has_group:"UseGroup" %}
+  <a href="{% url "sample_list" %}"><button class="button--home">Sample List</button></a>
+  <a href="{% url "experiment_list" %}"><button class="button--home">Experiment List</button></a>
+  {% endif %}
+
+  {% if request.user|has_group:"CreateGroup" %}
+  <h2 class="h2--home">Create Data</h2>
+  <a href="{% url "sample_create" %}"><button class="button--home">New Sample</button></a>
+  <a href="{% url "experiment_create" %}"><button class="button--home">New Experiment</button></a>
+  <a href="{% url "sample_info_choose" %}"><button class="button--home button--home--secondary">Create Sample Info</button></a>
   {% endif %}
   </div>
 
@@ -27,7 +36,7 @@
     />
   </div>
   <p>
-    Welcome to the website of the Data Mining Lab Freiberg! The DMLF provides data on the battery recycling chain in a structured way. If you want to learn more, click the button below. If you want to contact us, use contact form linked to at the bottom of the page or by clicking on Get Access to the left.
+    Welcome to the website of the Data Mining Lab Freiberg! The DMLF provides data on the battery recycling chain in a structured way. If you want to learn more, click the button below. If you want to contact us, use the contact form linked to at the bottom of the page or by clicking on Get Access to the left.
   </p>
   <div id="flush-right">
     <a href={% url "about" %}><button class="button--home button--home--cta">Learn More</button></a>

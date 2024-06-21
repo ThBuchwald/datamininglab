@@ -4,6 +4,10 @@
 {% block content %}
 
 <div class="main__left">
+    <h2 class="h2--home">Documentation</h2>
+    <a href="{% url "howto" %}"><button class="button--home">Web</button></a>
+    <a href="{% url "api" %}"><button class="button--home">API</button></a>
+
   {% if request.user|has_group:"UseGroup" %}
   <h2 class="h2--home">Get Data</h2>
   <a href="{% url "sample_list" %}"><button class="button--home">Sample List</button></a>
