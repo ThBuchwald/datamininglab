@@ -169,7 +169,7 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     'TITLE': 'DataMiningLab API',
     'DESCRIPTION': 'API for managing experiments, samples, and more in the DataMiningLab',
-    'VERSION': '0.1.1',
+    'VERSION': '0.2.0',
     'SERVE_AUTHENTICATION': ["rest_framework.authentication.SessionAuthentication"],
     'DEFAULT_REQUEST_CONTENT_TYPE': 'application/json',  # Default content type for requests
     'DEFAULT_RESPONSE_CONTENT_TYPE': 'application/json', # Default content type for responses

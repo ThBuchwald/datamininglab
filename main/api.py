@@ -7,9 +7,13 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, inline_seri
                                   OpenApiParameter, OpenApiResponse, OpenApiExample
 from drf_spectacular.types import OpenApiTypes
 from .models import Sample, Experiment, FundingBody, Institute, Method, Project, Staff, SampleType
-from .serializers import SampleSerializer, ExperimentSerializer, FundingBodySerializer, InstituteSerializer, \
-                         MethodSerializer, ProjectSerializer, StaffSerializer, SampleTypeSerializer, \
-                         SampleTypeBatterySerializer, SampleTypeSolidsSerializer, SampleTypeLiquidSerializer, SampleTypeSuspensionSerializer
+from .serializers.main_serializers import (
+    SampleSerializer, ExperimentSerializer, FundingBodySerializer, InstituteSerializer,
+    MethodSerializer, ProjectSerializer, StaffSerializer, SampleTypeSerializer,
+)
+from .serializers.sample_type_serializers import (
+    SampleTypeBatterySerializer, SampleTypeSolidsSerializer, SampleTypeLiquidSerializer, SampleTypeSuspensionSerializer,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -35,12 +39,12 @@ class LogUnauthorizedAccess(permissions.BasePermission):
 
 
 class ReadWriteViewSet(viewsets.ModelViewSet):  # CRUD endpoints
-    pass
+    permission_classes = [LogUnauthorizedAccess, permissions.IsAuthenticated]
 
 
 class ReadOnlyViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
                       mixins.ListModelMixin):  # Read-only endpoints
-    pass
+    permission_classes = [LogUnauthorizedAccess, permissions.IsAuthenticated]
 
 
 @extend_schema_view(
@@ -55,7 +59,6 @@ class SampleViewSet(ReadWriteViewSet):
     queryset = Sample.objects.select_related('user').all()
     serializer_class = SampleSerializer
     parser_classes = (MultiPartParser, FormParser)
-    permission_classes = [LogUnauthorizedAccess]
 
     def perform_create(self, serializer):
         # Assign the authenticated user (the owner of the token) to the 'user' field of the sample
@@ -74,7 +77,6 @@ class ExperimentViewSet(ReadWriteViewSet):
     queryset = Experiment.objects.select_related('user').all()
     serializer_class = ExperimentSerializer
     parser_classes = (MultiPartParser, FormParser)
-    permission_classes = [LogUnauthorizedAccess]
 
     def perform_create(self, serializer):
         # Assign the authenticated user (the owner of the token) to the 'user' field of the sample
@@ -88,7 +90,6 @@ class ExperimentViewSet(ReadWriteViewSet):
 class FundingBodyViewSet(ReadOnlyViewSet):
     queryset = FundingBody.objects.all()
     serializer_class = FundingBodySerializer
-    permission_classes = [LogUnauthorizedAccess]
 
 
 @extend_schema_view(
@@ -98,7 +99,6 @@ class FundingBodyViewSet(ReadOnlyViewSet):
 class InstituteViewSet(ReadOnlyViewSet):
     queryset = Institute.objects.all()
     serializer_class = InstituteSerializer
-    permission_classes = [LogUnauthorizedAccess]
 
 
 @extend_schema_view(
@@ -108,7 +108,6 @@ class InstituteViewSet(ReadOnlyViewSet):
 class MethodViewSet(ReadOnlyViewSet):
     queryset = Method.objects.all()
     serializer_class = MethodSerializer
-    permission_classes = [LogUnauthorizedAccess]
 
 
 @extend_schema_view(
@@ -118,7 +117,6 @@ class MethodViewSet(ReadOnlyViewSet):
 class ProjectViewSet(ReadOnlyViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [LogUnauthorizedAccess]
 
 
 @extend_schema_view(
@@ -128,7 +126,7 @@ class ProjectViewSet(ReadOnlyViewSet):
 class SampleTypeViewSet(ReadOnlyViewSet):
     queryset = SampleType.objects.all()
     serializer_class = SampleTypeSerializer
-    permission_classes = [LogUnauthorizedAccess]
+
 
 # staff personal data may not be read via API
 #@extend_schema_view(

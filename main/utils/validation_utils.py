@@ -2,8 +2,13 @@ import re
 from datetime import datetime
 from django.utils import timezone
 from django.core.exceptions import ValidationError as DjangoValidationError
-from .models import Institute, Method
+from ..models import Institute, Method
 from django.db.models import Max
+from ..serializers.sample_type_serializers import (
+    SampleTypeBatterySerializer, SampleTypeSolidsSerializer, 
+    SampleTypeLiquidSerializer, SampleTypeSuspensionSerializer,
+)
+
 
 def validate_sample_id(value):
     # Check format yymmdd_hhmmss_iiaaaa
@@ -39,3 +44,28 @@ def validate_sample_id(value):
     max_method_id = Method.objects.aggregate(Max('id'))['id__max']
     if method_code > max_method_id:
         raise DjangoValidationError(f"The method code {method_code} exceeds the highest method id {max_method_id}.")
+    
+
+def validate_json_structure(json_data, sample_type):
+    # Map sample types to their serializers
+    sample_type_serializers = {
+        'Battery': SampleTypeBatterySerializer,
+        'Solids': SampleTypeSolidsSerializer,
+        'Liquid': SampleTypeLiquidSerializer,
+        'Suspension': SampleTypeSuspensionSerializer,
+    }
+
+    # Get the serializer for the chosen sample type
+    serializer_class = sample_type_serializers.get(sample_type)
+
+    if not serializer_class:
+        return False
+
+    # Validate the JSON data using the serializer
+    serializer = serializer_class(data=json_data)
+
+    if not serializer.is_valid():
+        print(serializer.errors)  # Log serializer errors to console
+        return False
+
+    return True

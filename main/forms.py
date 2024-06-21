@@ -8,12 +8,12 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 from django.forms.widgets import TextInput, NumberInput, DateInput
 from rest_framework import serializers
-from main.models import Experiment, FundingBody, Method, Institute, Project, Sample, Staff
-from main.serializers import (SampleTypeBatterySerializer, SampleTypeLiquidSerializer,
-                              SampleTypeSolidsSerializer, SampleTypeSuspensionSerializer,
-                              )
-from main.utils.email_utils import send_initial_reset_email
-from .validators import validate_sample_id
+from .models import Experiment, FundingBody, Method, Institute, Project, Sample, Staff
+from .serializers.sample_type_serializers import (SampleTypeBatterySerializer, 
+                SampleTypeLiquidSerializer, SampleTypeSolidsSerializer, SampleTypeSuspensionSerializer,
+                )
+from .utils.email_utils import send_initial_reset_email
+from .utils.validation_utils import validate_sample_id, validate_json_structure
 
 
 
@@ -91,46 +91,23 @@ class SampleForm(forms.ModelForm):
     def clean_sample_info(self):
         sample_info = self.cleaned_data.get('sample_info')
         sample_type = self.cleaned_data.get('sample_type')
+        sample_type_name = sample_type.name
 
         if not sample_info:
             raise forms.ValidationError("This field is required.")
 
         try:
+            #sample_info_file = sample_info.read().decode('utf-8')
             sample_info_json = json.load(sample_info)
         except json.JSONDecodeError:
             raise forms.ValidationError("Invalid JSON file. Please upload a valid JSON file.")
         except Exception as e:
             raise forms.ValidationError(f"An error occurred while processing the file: {e}")
 
-        if not self.validate_json_structure(sample_info_json, sample_type):
+        if not validate_json_structure(sample_info_json, sample_type_name):
             raise forms.ValidationError("Invalid JSON structure for the selected sample type.")
 
         return sample_info
-
-
-    def validate_json_structure(self, json_data, sample_type):
-        # Map sample types to their serializers
-        sample_type_serializers = {
-            'Battery': SampleTypeBatterySerializer,
-            'Solids': SampleTypeSolidsSerializer,
-            'Liquid': SampleTypeLiquidSerializer,
-            'Suspension': SampleTypeSuspensionSerializer,
-        }
-
-        # Get the serializer for the chosen sample type
-        serializer_class = sample_type_serializers.get(sample_type.name)
-
-        if not serializer_class:
-            return False
-
-        # Validate the JSON data using the serializer
-        serializer = serializer_class(data=json_data)
-
-        if not serializer.is_valid():
-            print(serializer.errors)  # Log serializer errors to console
-            return False
-
-        return True
 
 
 def serializer_field_to_form_field(serializer_field):

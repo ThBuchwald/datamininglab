@@ -10,7 +10,9 @@ from django.views.generic import TemplateView, CreateView, ListView, DetailView,
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from .models import Experiment, FundingBody, Institute, Method, Project, Staff, Sample, SampleType
 from .forms import ExperimentForm, FundingBodyForm, MethodForm, ProjectForm, SampleForm, SampleInfoForm, StaffForm, UserForm, UserUpdateForm
-from .serializers import SampleTypeBatterySerializer, SampleTypeSolidsSerializer, SampleTypeLiquidSerializer, SampleTypeSuspensionSerializer
+from .serializers.sample_type_serializers import (
+    SampleTypeBatterySerializer, SampleTypeSolidsSerializer, SampleTypeLiquidSerializer, SampleTypeSuspensionSerializer
+)
 
 logger = logging.getLogger(__name__) # main.views
 
