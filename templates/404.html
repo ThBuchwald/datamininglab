@@ -1,0 +1,22 @@
+{% extends "main/base.html" %} 
+{% load static %} 
+{% load template_extras %} 
+{% block content %}
+
+<div class="main__left">
+    <h1 style="color: var(--highlight-color); font-size: xxx-large;">404</h1>
+</div>
+
+<div class="main__right">
+
+    <img
+        class="image__homepage"
+        src="{% static 'main/images/shredded.svg' %}"
+        alt="Comminuted battery cell with all constituents: foils, black mass, and housing"
+        title="Comminuted battery cell with all constituents: foils, black mass, and housing"
+    />
+    <p>Oops! This page doesn't exist, unfortunately.</p>
+
+</div>
+
+{% endblock %}

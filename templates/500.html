@@ -1,0 +1,24 @@
+{% extends "main/base.html" %} 
+{% load static %} 
+{% load template_extras %} 
+{% block content %}
+
+<div class="main__left">
+    <h1 style="color: var(--highlight-color); font-size: xxx-large;">500</h1>
+</div>
+
+<div class="main__right">
+
+
+    <img
+        class="image__homepage"
+        src="{% static 'main/images/shredded.svg' %}"
+        alt="Comminuted battery cell with all constituents: foils, black mass, and housing"
+        title="Comminuted battery cell with all constituents: foils, black mass, and housing"
+    />
+
+    <p>Wow, something just went wrong server-side. You may try again, but consider hitting the contact form if the this site persists after you attempt your action again.</p>
+
+</div>
+
+{% endblock %}

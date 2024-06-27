@@ -7,3 +7,4 @@ general.log
 /media/*
 /static/*
 poetry.lock
+gpt_codebase.txt
