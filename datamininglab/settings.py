@@ -170,9 +170,12 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
+
+SESSION_COOKIE_AGE = 42300  # half a day in seconds
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'DataMiningLab API',
