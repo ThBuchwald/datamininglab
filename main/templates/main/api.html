@@ -57,8 +57,9 @@ import json
 <pre><code class=" python language- python"># API base URL
 BASE_URL = 'https://dmlf.de/'
 
-# endpoint for obtaining the auth token
-TOKEN_ENDPOINT = BASE_URL + 'api-token-auth/'
+# endpoint for obtaining the auth token and refreshing it
+TOKEN_ENDPOINT = BASE_URL + 'api/token/'
+REFRESH_TOKEN_ENDPOINT = BASE_URL + 'api/token/refresh/'
 
 # endpoints for retrieving data
 INSTITUTES_ENDPOINT = BASE_URL + 'institutes/'
@@ -74,6 +75,8 @@ EXPERIMENTS_ENDPOINT = BASE_URL + 'experiments/'
 
 <h3 id="tokenauthentication">Token Authentication</h3>
 
+<h4>Getting a Token</h4>
+
 <p>Authentication in the RESTful API of the DataMiningLabFreiberg is handled through tokens. You need to have a working user account to access the API!</p>
 
 <pre><code class=" python language- python">credentials = {
@@ -81,19 +84,88 @@ EXPERIMENTS_ENDPOINT = BASE_URL + 'experiments/'
     'password': password
 }
 
-# obtain a token
-response = requests.post(TOKEN_ENDPOINT, data=credentials)
+headers = {
+    'Content-Type': 'application/json'
+}
+
+# Request to obtain token
+response = requests.post(TOKEN_ENDPOINT, data=json.dumps(credentials), headers=headers)
 response_data = response.json()
-token = response_data.get('token')
+access_token = response_data.get('access')
+refresh_token = response_data.get('refresh')
 
 # set up an authenticated session
 session = requests.Session()
 session.headers.update({
-    'Authorization': f'Token {token}'
+    'Authorization': f'Bearer {access_token}'
 })
 </code></pre>
 
 <p>You can always check if your request was successful by checking <code>response.status_code</code>, <code>response.reason</code>, and <code>response.text</code>.</p>
+
+<p>Do not forget to update your session as above whenever you have refreshed your token.</p>
+
+<h4>Refreshing a Token</h4>
+
+<p>JSON Web Tokens expire after one hour. Implement a check for when a token expires. In this case, you refresh like so:</p>
+
+<pre><code class=" python language- python">
+refresh_data = {
+    'refresh': refresh_token
+}
+
+response = requests.post(REFRESH_TOKEN_ENDPOINT, json=refresh_data, headers=headers)
+response_data = response.json()
+
+access_token = response_data.get('access')
+
+session = requests.Session()
+session.headers.update({
+    'Authorization': f'Bearer {access_token}'
+})
+</code></pre>
+
+<p>If a token expired, you will receive a 401 error. You may handle expiration checks as in the example below:</p>
+
+<pre><code class=" python language- python">
+def refresh_access_token(refresh_token):
+    """Request a new access token using the refresh token."""
+    response = requests.post(REFRESH_TOKEN_ENDPOINT, json={'refresh': refresh_token}, headers={'Content-Type': 'application/json'})
+    return response.json().get('access')
+
+def make_api_request(url, tokens, method='GET', data=None):
+    """Make an API request and handle 401 by refreshing the token."""
+    access_token = tokens['access']
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
+    }
+    response = requests.request(method, url, json=data, headers=headers)
+
+    if response.status_code == 401:
+        # Token might have expired, attempt to refresh
+        print("Access token expired, refreshing...")
+        new_access_token = refresh_access_token(tokens['refresh'])
+        if new_access_token:
+            access_token = new_access_token
+            headers['Authorization'] = f'Bearer {new_access_token}'
+            response = requests.request(method, url, json=data, headers=headers)  # Retry the request with the new token
+        else:
+            print("Failed to refresh token.")
+
+        session.headers.update({
+            'Authorization': f'Bearer {access_token}'
+        })
+
+    return response
+
+tokens = {
+    'access': access_token,
+    'refresh': refresh_token
+}
+
+response = make_api_request(INSTITUTES_ENDPOINT, tokens)
+</code></pre>
 
 <h3 id="dataretrieval">Data Retrieval</h3>
 

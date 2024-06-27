@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+from datetime import timedelta
 from decouple import config
 from pathlib import Path
 import os
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
     "contact",
     "widget_tweaks",
     "anymail",
+    "rest_framework_simplejwt",
 ]
 
 MIDDLEWARE = [
@@ -152,7 +154,7 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     # https://www.django-rest-framework.org/api-guide/permissions/#setting-the-permission-policy
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated'
@@ -165,6 +167,11 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
 SPECTACULAR_SETTINGS = {

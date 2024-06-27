@@ -24,6 +24,10 @@ from .api import (
 from .utils.file_utils import download_file
 from django.contrib.auth.decorators import login_required
 from main.utils.file_utils import download_file
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 router = DefaultRouter()
 router.register(r'samples', SampleViewSet)
@@ -125,10 +129,10 @@ urlpatterns = [
 ]
 
 # API-related
-
-urlpatterns += [path('api-token-auth/', obtain_auth_token,
-                     name='api-token-auth'),
-                path('api/sample-type-info/', SampleTypeInfoView.as_view(), name='sample-type-info'),
-               ]
+urlpatterns += [
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/sample-type-info/', SampleTypeInfoView.as_view(), name='sample-type-info'),
+]
 
 urlpatterns += router.urls
