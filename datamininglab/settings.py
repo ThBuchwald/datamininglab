@@ -15,6 +15,7 @@ from decouple import config
 from pathlib import Path
 import os
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -167,6 +168,20 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+        'main.throttles.GetRequestThrottle',
+        'main.throttles.PostRequestThrottle',
+        'main.throttles.PutDeleteRequestThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '10/day',
+        'user': '10000/day',
+        'get_requests': '10000/day',
+        'post_requests': '500/day',
+        'write_requests': '500/day'
+    }
 }
 
 SIMPLE_JWT = {
