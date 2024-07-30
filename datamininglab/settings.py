@@ -27,8 +27,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET", default="!!!SET_SECRET_KEY!!!")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-#DEBUG = config("DEBUG", default=False, cast=bool)
-DEBUG = False
+DEBUG = config("DEBUG", default=False, cast=bool)
+#DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'dmlf.de', 'www.dmlf.de']
 
@@ -94,11 +94,11 @@ WSGI_APPLICATION = "datamininglab.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME"),
-        "HOST": config("DB_HOST"),
+        "NAME": config("DB_NAME", default="!!SET_DATABASE_NAME!!"),
+        "HOST": config("DB_HOST", default="!!SET_DATABASE_HOST!!"),
         "USER": "postgres",
-        "PASSWORD": config("DB_PASSWORD"),
-        "PORT": config("DB_PORT")
+        "PASSWORD": config("DB_PASSWORD", default="!!SET_DATABASE_PWD!!"),
+        "PORT": config("DB_PORT", default="!!SET_DATABASE_PORT!!")
     }
 }
 
@@ -135,7 +135,7 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = config("MEDIA_FOLDER")
+MEDIA_ROOT = config("MEDIA_FOLDER", default="!!SET_MEDIA_FOLDER!!")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -232,7 +232,7 @@ LOGGING = {
 EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
 
 ANYMAIL = {
-    "RESEND_API_KEY": config("EMAIL_HOST_PASSWORD"),
+    "RESEND_API_KEY": config("EMAIL_HOST_PASSWORD", default="!!SET_EMAIL_PWD!!"),
     "RESEND_API_URL": "https://api.resend.com/",
 }
 
