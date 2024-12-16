@@ -5,6 +5,7 @@
 *.env*
 general.log
 /media/*
-/static/*
+/static/admin/*
+/static/rest_framework/*
 poetry.lock
 gpt_codebase.txt
